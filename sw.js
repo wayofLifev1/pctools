@@ -5,7 +5,7 @@ const ASSETS_TO_CACHE = [
     './manifest.json',
     './icon-192.png',
     './icon-512.png',
-    './task-widget-ui.json' // Added this to cache for offline widget rendering
+    './task-widget-ui.json'
 ];
 
 const EXTERNAL_ASSETS = [
@@ -13,7 +13,6 @@ const EXTERNAL_ASSETS = [
     'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap'
 ];
 
-// 1. Install Event
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
@@ -24,7 +23,6 @@ self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
 
-// 2. Activate Event
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((keyList) => {
@@ -36,7 +34,7 @@ self.addEventListener('activate', (event) => {
     return self.clients.claim();
 });
 
-// 3. Fetch Event
+// Fetch logic for offline support
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
     if (event.request.mode === 'navigate' || url.pathname.endsWith('index.html')) {
@@ -45,11 +43,9 @@ self.addEventListener('fetch', (event) => {
         );
         return;
     }
-
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
-            if (cachedResponse) return cachedResponse;
-            return fetch(event.request).then((networkResponse) => {
+            return cachedResponse || fetch(event.request).then((networkResponse) => {
                 if (!networkResponse || networkResponse.status !== 200) return networkResponse;
                 const responseToCache = networkResponse.clone();
                 caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
@@ -59,17 +55,10 @@ self.addEventListener('fetch', (event) => {
     );
 });
 
-// --- FIXED WIDGET LOGIC (Moved outside of Fetch) ---
+// --- WIDGET LOGIC ---
+self.addEventListener('widgetinstall', event => event.waitUntil(renderWidget(event.widget)));
+self.addEventListener('widgetresume', event => event.waitUntil(renderWidget(event.widget)));
 
-self.addEventListener('widgetinstall', event => {
-    event.waitUntil(renderWidget(event.widget));
-});
-
-self.addEventListener('widgetresume', event => {
-    event.waitUntil(renderWidget(event.widget));
-});
-
-// Completed the RELOAD_WIDGET logic
 self.addEventListener('message', (event) => {
     if (event.data.type === 'RELOAD_WIDGET') {
         event.waitUntil(
@@ -105,9 +94,7 @@ async function getTasksFromDB() {
         const request = indexedDB.open('SmartOpsDB', 1);
         request.onsuccess = (e) => {
             const db = e.target.result;
-            // Ensure store exists before trying to read
             if (!db.objectStoreNames.contains('items')) return resolve([]);
-            
             const tx = db.transaction('items', 'readonly');
             const store = tx.objectStore('items');
             const getAll = store.getAll();
