@@ -9,6 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="SmartOps">
     <title>SmartOps Pro v2.4</title>
+    <link rel="manifest" href="manifest.json">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -260,6 +261,21 @@
 
         /* Confetti */
         #confetti-canvas { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999; }
+  
+    /* --- INSTALL MODAL --- */
+.install-card {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(150%);
+    width: 90%; max-width: 400px; background: var(--bg-surface);
+    border: 1px solid var(--primary); box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    border-radius: 20px; padding: 20px; z-index: 1000;
+    display: flex; flex-direction: column; gap: 12px;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.install-card.show { transform: translateX(-50%) translateY(0); }
+.inst-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.inst-icon { width: 50px; height: 50px; border-radius: 12px; background: var(--primary-grad); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; }
+.ios-guide { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; background: var(--bg-surface-2); padding: 12px; border-radius: 12px; }
+
     </style>
 </head>
 <body>
@@ -470,6 +486,27 @@
             <button class="btn btn-ghost" style="margin-top:20px" onclick="closeTools()" data-key="close">Close</button>
         </div>
     </div>
+    <div id="install-prompt" class="install-card">
+    <div class="inst-header">
+        <div class="inst-icon"><i class="ph-fill ph-rocket-launch"></i></div>
+        <div>
+            <div style="font-weight:700; font-size:1.1rem">Install SmartOps</div>
+            <div style="font-size:0.85rem; color:var(--text-muted)">Get the native app experience</div>
+        </div>
+        <button class="btn-ghost" style="width:auto; margin-left:auto" onclick="closeInstall()"><i class="ph ph-x"></i></button>
+    </div>
+
+    <button id="btn-pwa-install" class="btn btn-primary" style="display:none" onclick="triggerInstall()">
+        <i class="ph-bold ph-download-simple"></i> Install App
+    </button>
+
+    <div id="ios-instruct" class="ios-guide" style="display:none">
+        To install on iOS:<br>
+        1. Tap the <strong>Share</strong> button <i class="ph-bold ph-export"></i><br>
+        2. Select <strong>Add to Home Screen</strong> <i class="ph-bold ph-plus-square"></i>
+    </div>
+    </div>
+    
 
     <script>
         // --- CORE STATE ---
@@ -978,6 +1015,71 @@
             };
             reader.readAsText(file);
         }
-    </script>
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+            .then(() => console.log('SW Registered'))
+            .catch(err => console.log('SW Error:', err));
+    }
+    // --- INSTALLATION LOGIC ---
+let deferredPrompt;
+const installCard = document.getElementById('install-prompt');
+const btnInstall = document.getElementById('btn-pwa-install');
+const iosMsg = document.getElementById('ios-instruct');
+
+// Check if app is already running in standalone mode
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+// 1. Handle Android/Desktop Chrome
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault(); // Prevent default mini-infobar
+    deferredPrompt = e; // Stash the event
+    
+    if(!isStandalone && !localStorage.getItem('smartops_install_dismissed')) {
+        showInstallUI('android');
+    }
+});
+
+// 2. Handle iOS
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+if (isIOS && !isStandalone && !localStorage.getItem('smartops_install_dismissed')) {
+    showInstallUI('ios');
+}
+
+function showInstallUI(platform) {
+    // Show the modal
+    installCard.classList.add('show');
+    
+    if (platform === 'android') {
+        btnInstall.style.display = 'flex';
+        iosMsg.style.display = 'none';
+    } else {
+        btnInstall.style.display = 'none';
+        iosMsg.style.display = 'block';
+    }
+}
+
+async function triggerInstall() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response: ${outcome}`);
+        deferredPrompt = null;
+        installCard.classList.remove('show');
+    }
+}
+
+function closeInstall() {
+    installCard.classList.remove('show');
+    // Don't show again for this session/user preference
+    localStorage.setItem('smartops_install_dismissed', 'true');
+}
+
+// Add a Reset button in settings if you want to test again
+// You can add this to your settings modal HTML:
+// <button class="btn btn-ghost" onclick="localStorage.removeItem('smartops_install_dismissed'); alert('Reset!')">Reset Install Prompt</button>
+
+
+</script>
 </body>
 </html>
