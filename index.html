@@ -18,7 +18,6 @@
 
     <style>
         :root {
-            /* Palette - Slate & Indigo */
             --bg-body: #0f172a;
             --bg-surface: #1e293b;
             --bg-surface-2: #334155;
@@ -26,15 +25,12 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border: #334155;
-            
             --primary: #6366f1;
             --primary-hover: #4f46e5;
             --primary-grad: linear-gradient(135deg, #6366f1, #8b5cf6);
-            
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
-            
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
             --radius: 16px;
@@ -53,7 +49,6 @@
             --primary-grad: linear-gradient(135deg, #4f46e5, #4338ca);
         }
 
-        /* Reset & Base */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body {
             margin: 0; font-family: 'Inter', sans-serif;
@@ -85,7 +80,6 @@
 
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
         
-        /* Header */
         .top-bar { 
             height: 70px; display: flex; align-items: center; padding: 0 24px; gap: 12px; flex-shrink: 0; 
             border-bottom: 1px solid transparent; transition: border 0.2s; z-index: 20;
@@ -109,11 +103,9 @@
         }
         .icon-btn:hover { background: var(--bg-surface-2); color: var(--text-main); border-color: var(--primary); }
 
-        /* Viewport */
         .viewport { flex: 1; padding: 24px; overflow-y: auto; scroll-behavior: smooth; padding-bottom: 120px; }
         .dashboard-grid { display: grid; grid-template-columns: 1fr 340px; gap: 24px; max-width: 1400px; margin: 0 auto; }
 
-        /* --- CARDS --- */
         .card {
             background: var(--bg-surface); border-radius: var(--radius); padding: 20px;
             box-shadow: var(--shadow-sm); border: 1px solid var(--border);
@@ -134,7 +126,6 @@
         .btn-del { background: transparent; border: none; color: var(--text-muted); padding: 8px; border-radius: 8px; cursor: pointer; transition: 0.2s; z-index: 2; }
         .btn-del:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
 
-        /* --- CALENDAR --- */
         .calendar-widget {
             background: var(--bg-surface); border-radius: var(--radius); padding: 24px;
             height: fit-content; position: sticky; top: 0; border: 1px solid var(--border);
@@ -150,7 +141,6 @@
         .cal-day.active { background: var(--primary); color: white; }
         .cal-day.has-event { border-bottom: 2px solid var(--primary); }
 
-        /* --- MOBILE NAV --- */
         .mobile-nav { 
             display: none; position: fixed; bottom: 0; left: 0; width: 100%;
             background: var(--bg-surface); border-top: 1px solid var(--border);
@@ -161,7 +151,6 @@
         .mob-item i { font-size: 1.5rem; transition: 0.2s; }
         .mob-item.active { color: var(--primary); }
 
-        /* --- MODALS & FAB --- */
         .fab {
             position: fixed; bottom: 40px; right: 40px; width: 56px; height: 56px;
             background: var(--primary-grad); color: white; border-radius: 20px; border: none;
@@ -213,7 +202,9 @@
         .calc-btn.eq { background: var(--primary-grad); color: white; }
 
         /* --- MODERN CONVERTER --- */
-        .conv-card { background: var(--bg-input); border: 1px solid var(--border); padding: 16px; border-radius: 16px; margin-bottom: 12px; }
+        .conv-card {
+            background: var(--bg-input); border: 1px solid var(--border); padding: 16px; border-radius: 16px; margin-bottom: 12px;
+        }
         .conv-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; display: block; }
         .conv-row { display: flex; align-items: center; gap: 12px; }
         .conv-input { margin-bottom: 0 !important; font-size: 1.25rem !important; font-weight: 700 !important; border: none !important; background: transparent !important; padding: 0 !important; }
@@ -306,6 +297,14 @@
             <input type="text" id="m-title" placeholder="Title">
             <textarea id="m-notes" rows="3" placeholder="Notes..."></textarea>
             
+            <div style="display:flex; gap:12px; margin-bottom:12px">
+                <div id="drop-zone" onclick="document.getElementById('file-in').click()" style="flex:1; border:2px dashed var(--border); border-radius:12px; padding:15px; text-align:center; cursor:pointer">
+                    <i class="ph ph-camera"></i> <span id="img-status">Add Photo</span>
+                    <input type="file" id="file-in" hidden accept="image/*" onchange="processImage(this)">
+                </div>
+                <button class="btn btn-ghost" style="width:100px" onclick="openDraw()"><i class="ph ph-pencil"></i> Draw</button>
+            </div>
+
             <div id="grp-task"><input type="date" id="m-date"></div>
             <div id="grp-order" style="display:none"><input type="number" id="m-price" placeholder="Price"></div>
             <div id="grp-target" style="display:none"><input type="number" id="m-goal" placeholder="Target Goal"></div>
@@ -332,18 +331,22 @@
                         <button class="calc-btn fn" onclick="cDel()"><i class="ph ph-backspace"></i></button>
                         <button class="calc-btn fn" onclick="cAdd('%')">%</button>
                         <button class="calc-btn op" onclick="cAdd('/')">÷</button>
+                        
                         <button class="calc-btn" onclick="cAdd('7')">7</button>
                         <button class="calc-btn" onclick="cAdd('8')">8</button>
                         <button class="calc-btn" onclick="cAdd('9')">9</button>
                         <button class="calc-btn op" onclick="cAdd('*')">×</button>
+                        
                         <button class="calc-btn" onclick="cAdd('4')">4</button>
                         <button class="calc-btn" onclick="cAdd('5')">5</button>
                         <button class="calc-btn" onclick="cAdd('6')">6</button>
                         <button class="calc-btn op" onclick="cAdd('-')">−</button>
+                        
                         <button class="calc-btn" onclick="cAdd('1')">1</button>
                         <button class="calc-btn" onclick="cAdd('2')">2</button>
                         <button class="calc-btn" onclick="cAdd('3')">3</button>
                         <button class="calc-btn op" onclick="cAdd('+')">+</button>
+                        
                         <button class="calc-btn" onclick="cAdd('0')" style="grid-column: span 2; aspect-ratio: auto; border-radius: 16px">0</button>
                         <button class="calc-btn" onclick="cAdd('.')">.</button>
                         <button class="calc-btn eq" onclick="cCalc()">=</button>
@@ -358,6 +361,7 @@
                     <option value="vol">🧪 Volume</option>
                     <option value="temp">🌡️ Temperature</option>
                 </select>
+
                 <div class="conv-card">
                     <label class="conv-label">From</label>
                     <div class="conv-row">
@@ -365,7 +369,11 @@
                         <select id="cv-u1" class="conv-select" onchange="doConv()"></select>
                     </div>
                 </div>
-                <div class="conv-swap" onclick="swapConv()"><i class="ph-bold ph-arrows-down-up"></i></div>
+
+                <div class="conv-swap" onclick="swapConv()">
+                    <i class="ph-bold ph-arrows-down-up"></i>
+                </div>
+
                 <div class="conv-card" style="border-color: var(--primary)">
                     <label class="conv-label" style="color:var(--primary)">To</label>
                     <div class="conv-row">
@@ -383,69 +391,18 @@
         <div class="modal">
             <h3>Settings</h3>
             <button class="btn btn-ghost" onclick="toggleTheme()"><i class="ph ph-moon"></i> Toggle Theme</button>
+            <button class="btn btn-ghost" onclick="backupData()"><i class="ph ph-download"></i> Backup Data</button>
             <button class="btn btn-ghost" style="margin-top:10px" onclick="closeSettings()">Close</button>
         </div>
     </div>
 
     <script>
-        // --- DB & STATE ---
-        const DB_NAME = 'SmartOpsDB';
-        const DB_VERSION = 1;
-        let db;
-        let items = [];
+        let items = JSON.parse(localStorage.getItem('smartops_data')) || [];
         let mode = 'task';
+        let imgBuffer = null;
         let isDark = localStorage.getItem('smartops_theme') !== 'light';
 
-        // --- INIT DB ---
-        function initDB() {
-            return new Promise((resolve) => {
-                const request = indexedDB.open(DB_NAME, DB_VERSION);
-                request.onupgradeneeded = (e) => {
-                    db = e.target.result;
-                    if (!db.objectStoreNames.contains('items')) {
-                        db.createObjectStore('items', { keyPath: 'id' });
-                    }
-                };
-                request.onsuccess = (e) => {
-                    db = e.target.result;
-                    loadFromDB().then(resolve);
-                };
-            });
-        }
-
-        async function loadFromDB() {
-            return new Promise((resolve) => {
-                const tx = db.transaction('items', 'readonly');
-                const store = tx.objectStore('items');
-                const request = store.getAll();
-                request.onsuccess = () => {
-                    items = request.result || [];
-                    render();
-                    resolve();
-                };
-            });
-        }
-
-        function dbSave(item) {
-            const tx = db.transaction('items', 'readwrite');
-            tx.objectStore('items').put(item);
-            syncWidget();
-        }
-
-        function dbDelete(id) {
-            const tx = db.transaction('items', 'readwrite');
-            tx.objectStore('items').delete(id);
-            syncWidget();
-        }
-
-        // --- WIDGET SYNC ---
-        function syncWidget() {
-            if (navigator.serviceWorker.controller) {
-                navigator.serviceWorker.controller.postMessage({ type: 'RELOAD_WIDGET' });
-            }
-        }
-
-        // --- APP LOGIC ---
+        // --- CORE APP LOGIC ---
         function applyTheme() {
             document.body.className = isDark ? '' : 'light-mode';
             localStorage.setItem('smartops_theme', isDark ? 'dark' : 'light');
@@ -464,17 +421,18 @@
         function render() {
             const container = document.getElementById('list-container');
             container.innerHTML = '';
-            items.filter(i => i.type === mode).sort((a,b) => b.id - a.id).forEach(item => {
+            items.filter(i => i.type === mode).forEach(item => {
                 const card = document.createElement('div');
                 card.className = `card ${item.done ? 'done' : ''}`;
                 card.innerHTML = `
+                    ${item.img ? `<img src="${item.img}" class="thumb">` : ''}
                     <div class="card-content">
                         <div class="card-title">${item.title}</div>
                         <div class="card-meta">${item.notes || ''}</div>
                     </div>
-                    <button class="btn-del" onclick="event.stopPropagation(); deleteItem('${item.id}')"><i class="ph ph-trash"></i></button>
+                    <button class="btn-del" onclick="deleteItem('${item.id}')"><i class="ph ph-trash"></i></button>
                 `;
-                card.onclick = () => { item.done = !item.done; dbSave(item); render(); };
+                card.onclick = () => { item.done = !item.done; save(); render(); };
                 container.appendChild(card);
             });
         }
@@ -482,54 +440,77 @@
         function saveItem() {
             const title = document.getElementById('m-title').value;
             if(!title) return;
-            const item = {
+            items.push({
                 id: Date.now().toString(),
                 type: mode,
                 title,
                 notes: document.getElementById('m-notes').value,
+                img: imgBuffer,
                 done: false
-            };
-            items.push(item);
-            dbSave(item);
-            closeModal();
-            render();
+            });
+            save(); closeModal(); render();
         }
 
         function deleteItem(id) {
             items = items.filter(i => i.id !== id);
-            dbDelete(id);
-            render();
+            save(); render();
         }
 
+        function save() { localStorage.setItem('smartops_data', JSON.stringify(items)); }
         function openModal() { document.getElementById('modal').style.display = 'flex'; document.getElementById('modal').classList.add('show'); }
         function closeModal() { document.getElementById('modal').classList.remove('show'); setTimeout(()=>document.getElementById('modal').style.display='none', 200); }
         function openSettingsModal() { document.getElementById('modal-settings').classList.add('show'); }
         function closeSettings() { document.getElementById('modal-settings').classList.remove('show'); }
 
-        // --- CALCULATOR ---
-        let cExp = "0";
+        // --- CALCULATOR LOGIC ---
+        let cExp = "";
         let cPrev = "";
-        function cAdd(v) { if (cExp === "0" && !isNaN(v)) cExp = v; else cExp += v; updateDisp(); }
-        function cDel() { cExp = cExp.toString().slice(0, -1) || "0"; updateDisp(); }
-        function cClear() { cExp = "0"; cPrev = ""; updateDisp(); }
+
+        function cAdd(v) {
+            if (cExp === "0" && !isNaN(v)) cExp = v;
+            else cExp += v;
+            updateDisp();
+        }
+
+        function cDel() {
+            cExp = cExp.toString().slice(0, -1);
+            if (cExp === "") cExp = "0";
+            updateDisp();
+        }
+
+        function cClear() {
+            cExp = "0";
+            cPrev = "";
+            updateDisp();
+        }
+
         function cCalc() {
             try {
                 cPrev = cExp + " =";
-                let formula = cExp.replace(/×/g, '*').replace(/÷/g, '/').replace(/(\d+)%/g, '($1/100)');
+                let formula = cExp.replace(/×/g, '*').replace(/÷/g, '/');
+                // Handle percentages: 50% becomes 50/100
+                formula = formula.replace(/(\d+)%/g, '($1/100)');
                 let res = eval(formula);
                 cExp = Number.isInteger(res) ? res.toString() : parseFloat(res.toFixed(8)).toString();
-            } catch { cExp = "Error"; }
+            } catch {
+                cExp = "Error";
+            }
             updateDisp();
         }
-        function updateDisp() { document.getElementById('c-disp').innerText = cExp; document.getElementById('c-history').innerText = cPrev; }
 
-        // --- CONVERTER ---
+        function updateDisp() {
+            document.getElementById('c-disp').innerText = cExp || "0";
+            document.getElementById('c-history').innerText = cPrev;
+        }
+
+        // --- CONVERTER LOGIC ---
         const units = {
             len: { m:1, km:1000, cm:0.01, mm:0.001, ft:0.3048, in:0.0254, mi:1609.34 },
             wgt: { kg:1, g:0.001, lb:0.453592, oz:0.0283495 },
             vol: { l:1, ml:0.001, gal:3.78541, qt:0.946353 },
             temp: { c:'c', f:'f', k:'k' }
         };
+
         function initConv() {
             const type = document.getElementById('cv-type').value;
             const u1 = document.getElementById('cv-u1'), u2 = document.getElementById('cv-u2');
@@ -538,14 +519,17 @@
                 u1.innerHTML += `<option value="${k}">${k.toUpperCase()}</option>`;
                 u2.innerHTML += `<option value="${k}">${k.toUpperCase()}</option>`;
             });
-            u2.selectedIndex = 1; doConv();
+            u2.selectedIndex = 1;
+            doConv();
         }
+
         function doConv() {
             const type = document.getElementById('cv-type').value;
             const val = parseFloat(document.getElementById('cv-in').value) || 0;
             const from = document.getElementById('cv-u1').value;
             const to = document.getElementById('cv-u2').value;
             let res = 0;
+
             if(type === 'temp') {
                 let c = val;
                 if(from === 'f') c = (val - 32) * 5/9;
@@ -553,11 +537,23 @@
                 if(to === 'c') res = c;
                 if(to === 'f') res = (c * 9/5) + 32;
                 if(to === 'k') res = c + 273.15;
-            } else { res = (val * units[type][from]) / units[type][to]; }
+            } else {
+                res = (val * units[type][from]) / units[type][to];
+            }
             document.getElementById('cv-out').innerText = parseFloat(res.toFixed(4));
         }
-        function swapConv() { const u1 = document.getElementById('cv-u1'), u2 = document.getElementById('cv-u2'); const tmp = u1.value; u1.value = u2.value; u2.value = tmp; doConv(); }
-        function openToolModal(t) { document.getElementById('modal-tools').classList.add('show'); switchTool(t); }
+
+        function swapConv() {
+            const u1 = document.getElementById('cv-u1'), u2 = document.getElementById('cv-u2');
+            const tmp = u1.value; u1.value = u2.value; u2.value = tmp;
+            doConv();
+        }
+
+        // --- TOOL MODAL ---
+        function openToolModal(t) {
+            document.getElementById('modal-tools').classList.add('show');
+            switchTool(t);
+        }
         function closeTools() { document.getElementById('modal-tools').classList.remove('show'); }
         function switchTool(t) {
             document.getElementById('view-calc').style.display = t === 'calc' ? 'block' : 'none';
@@ -567,16 +563,18 @@
             if(t === 'conv') initConv();
         }
 
-        // --- RUN ---
-        window.onload = () => {
-            applyTheme();
-            initDB();
-            document.getElementById('cal-month').innerText = new Date().toLocaleString('default', {month:'long', year:'numeric'});
-        };
-
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js').then(() => console.log('SW Registered'));
+        // --- CALENDAR ---
+        function renderCal() {
+            const now = new Date();
+            document.getElementById('cal-month').innerText = now.toLocaleString('default', {month:'long', year:'numeric'});
+            const grid = document.getElementById('cal-days'); grid.innerHTML = '';
+            for(let i=1; i<=31; i++) {
+                grid.innerHTML += `<div class="cal-day ${i === now.getDate() ? 'active' : ''}">${i}</div>`;
+            }
         }
+
+        // Init
+        window.onload = () => { applyTheme(); render(); renderCal(); };
     </script>
 </body>
 </html>
