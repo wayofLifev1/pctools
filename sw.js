@@ -56,6 +56,64 @@ self.addEventListener('fetch', (event) => {
         );
         return;
     }
+    // --- WIDGET LOGIC ---
+
+self.addEventListener('widgetinstall', event => {
+    event.waitUntil(renderWidget(event.widget));
+});
+
+self.addEventListener('widgetresume', event => {
+    event.waitUntil(renderWidget(event.widget));
+});
+
+// This listens for updates from your index.html (when a user adds a task)
+self.addEventListener('message', (event) => {
+    if (event.data.type === 'RELOAD_WIDGET') {
+        self.widgets.updateByTag('task-list', {
+             // Logic to refresh data
+        });
+    }
+});
+
+async function renderWidget(widget) {
+    // 1. Fetch the UI template
+    const template = await fetch('./task-widget-ui.json').then(res => res.json());
+
+    // 2. Access IndexedDB to get the real tasks
+    // (This is a simplified representation of fetching your 'items' array)
+    const tasks = await getTasksFromDB(); 
+    
+    const data = {
+        task1: tasks[0]?.title || "No tasks!",
+        task2: tasks[1]?.title || "-",
+        task3: tasks[2]?.title || "-"
+    };
+
+    await self.widgets.updateByTag('task-list', {
+        template: JSON.stringify(template),
+        data: JSON.stringify(data)
+    });
+}
+
+// Helper to get data from your SmartOpsDB
+async function getTasksFromDB() {
+    return new Promise((resolve) => {
+        const request = indexedDB.open('SmartOpsDB', 1);
+        request.onsuccess = (e) => {
+            const db = e.target.result;
+            const tx = db.transaction('items', 'readonly');
+            const store = tx.objectStore('items');
+            const getAll = store.getAll();
+            getAll.onsuccess = () => {
+                // Return only unfinished tasks
+                const pending = getAll.result.filter(i => !i.done && i.type === 'task');
+                resolve(pending.slice(0, 3));
+            };
+        };
+        request.onerror = () => resolve([]);
+    });
+}
+
 
     // Strategy: Cache First for everything else (Images, CSS, Fonts, Scripts)
     event.respondWith(
