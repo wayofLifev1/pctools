@@ -1,0 +1,30 @@
+{
+  "type": "AdaptiveCard",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "SmartOps: Pending Tasks",
+      "weight": "Bolder",
+      "size": "Medium",
+      "color": "Accent"
+    },
+    {
+      "type": "FactSet",
+      "facts": [
+        { "title": "1.", "value": "${task1}" },
+        { "title": "2.", "value": "${task2}" },
+        { "title": "3.", "value": "${task3}" }
+      ],
+      "spacing": "Medium"
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "Open App",
+      "url": "./index.html"
+    }
+  ],
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.5"
+}
