@@ -3,8 +3,8 @@ const ASSETS_TO_CACHE = [
     './',
     './index.html',
     './manifest.json',
-    './icon194.png', // Ensure these exist!
-    './icon512.png'
+    './icon-192.png', // Ensure these exist!
+    './icon-512.png'
 ];
 
 // External assets (Fonts & Icons)
