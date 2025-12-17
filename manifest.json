@@ -8,15 +8,19 @@
   "orientation": "portrait",
   "scope": "./",
   "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "widgets": [
     {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "name": "Priority Tasks",
+      "description": "See your top 3 pending tasks.",
+      "tag": "task-list",
+      "template": "task-widget-ui",
+      "msAcTemplate": "task-widget-ui.json",
+      "data": "task-data",
+      "type": "application/json",
+      "update": 1800
     }
   ]
 }
