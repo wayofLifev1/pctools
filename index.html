@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="SmartOps Pro - Enterprise Productivity">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SmartOps">
+    <title>SmartOps Pro v2.4</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            /* Palette - Slate & Indigo */
+            --bg-body: #0f172a;
+            --bg-surface: #1e293b;
+            --bg-surface-2: #334155;
+            --bg-input: #020617;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-grad: linear-gradient(135deg, #6366f1, #8b5cf6);
+            
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius: 16px;
+            --safe-bottom: env(safe-area-inset-bottom);
+        }
+
+        body.light-mode {
+            --bg-body: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-surface-2: #e2e8f0;
+            --bg-input: #f1f5f9;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --primary: #4f46e5;
+            --primary-grad: linear-gradient(135deg, #4f46e5, #4338ca);
+        }
+
+        /* Reset & Base */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body {
+            margin: 0; font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body); color: var(--text-main);
+            height: 100vh; overflow: hidden; display: flex;
+            transition: background-color 0.3s ease;
+        }
+
+        /* --- LAYOUT --- */
+        .sidebar {
+            width: 260px; background: var(--bg-surface); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; padding: 24px; z-index: 50;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .brand {
+            font-size: 1.25rem; font-weight: 800; margin-bottom: 32px;
+            display: flex; align-items: center; gap: 12px; letter-spacing: -0.02em;
+        }
+        .brand i { color: var(--primary); font-size: 1.5rem; }
+
+        .nav-item {
+            padding: 12px 16px; border-radius: 12px; cursor: pointer; color: var(--text-muted);
+            font-weight: 600; display: flex; align-items: center; gap: 12px; transition: 0.2s; margin-bottom: 4px;
+            font-size: 0.95rem; user-select: none;
+        }
+        .nav-item:hover { background: var(--bg-surface-2); color: var(--text-main); }
+        .nav-item.active { background: var(--primary-grad); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
+
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        
+        /* Header */
+        .top-bar { 
+            height: 70px; display: flex; align-items: center; padding: 0 24px; gap: 12px; flex-shrink: 0; 
+            border-bottom: 1px solid transparent; transition: border 0.2s; z-index: 20;
+        }
+        .scrolled .top-bar { border-bottom: 1px solid var(--border); background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); }
+        body.light-mode .scrolled .top-bar { background: rgba(255, 255, 255, 0.8); }
+
+        .search-wrapper {
+            position: relative; flex: 1; max-width: 400px;
+        }
+        .search-wrapper i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .search-input {
+            width: 100%; background: var(--bg-surface); border: 1px solid var(--border);
+            padding: 10px 10px 10px 42px; border-radius: 50px; color: var(--text-main);
+            font-weight: 500; font-size: 0.95rem; transition: 0.2s;
+        }
+        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
+
+        /* Icons Buttons */
+        .icon-btn {
+            background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-muted);
+            width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s; font-size: 1.25rem;
+        }
+        .icon-btn:hover { background: var(--bg-surface-2); color: var(--text-main); border-color: var(--primary); }
+        .icon-btn:active { transform: scale(0.95); }
+
+        /* Viewport */
+        .viewport { flex: 1; padding: 24px; overflow-y: auto; scroll-behavior: smooth; padding-bottom: 120px; }
+        .dashboard-grid {
+            display: grid; grid-template-columns: 1fr 340px; gap: 24px;
+            max-width: 1400px; margin: 0 auto;
+        }
+
+        /* --- CARDS --- */
+        .card {
+            background: var(--bg-surface); border-radius: var(--radius); padding: 20px;
+            box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+            display: flex; gap: 16px; position: relative; transition: all 0.2s;
+            cursor: pointer; margin-bottom: 16px; user-select: none;
+        }
+        .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+        .card.done .card-content { opacity: 0.5; text-decoration: line-through; }
+        
+        .thumb { 
+            width: 64px; height: 64px; border-radius: 12px; object-fit: cover; 
+            background: var(--bg-surface-2); flex-shrink: 0; 
+        }
+        
+        .card-content { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+        .card-title { font-weight: 700; font-size: 1rem; margin-bottom: 4px; line-height: 1.3; }
+        .card-meta { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 10px; align-items: center; }
+        
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+        .bg-price { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .bg-high { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .btn-del { 
+            background: transparent; border: none; color: var(--text-muted); 
+            padding: 8px; border-radius: 8px; cursor: pointer; transition: 0.2s; z-index: 2;
+        }
+        .btn-del:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+        /* --- CALENDAR --- */
+        .calendar-widget {
+            background: var(--bg-surface); border-radius: var(--radius); padding: 24px;
+            height: fit-content; position: sticky; top: 0; border: 1px solid var(--border);
+        }
+        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-weight: 700; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; }
+        .cal-day {
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            border-radius: 8px; font-size: 0.9rem; color: var(--text-muted); cursor: pointer;
+            transition: 0.2s; font-weight: 500;
+        }
+        .cal-day:hover { background: var(--bg-surface-2); color: var(--text-main); }
+        .cal-day.active { background: var(--primary); color: white; }
+        .cal-day.has-event { border-bottom: 2px solid var(--primary); }
+
+        /* --- MOBILE NAV --- */
+        .mobile-nav { 
+            display: none; position: fixed; bottom: 0; left: 0; width: 100%;
+            background: var(--bg-surface); border-top: 1px solid var(--border);
+            padding: 12px 24px calc(12px + var(--safe-bottom)) 24px; z-index: 90;
+            justify-content: space-between;
+        }
+        .mob-item {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            color: var(--text-muted); font-size: 0.75rem; font-weight: 600; cursor: pointer; flex: 1;
+        }
+        .mob-item i { font-size: 1.5rem; margin-bottom: 2px; transition: 0.2s; }
+        .mob-item.active { color: var(--primary); }
+        .mob-item.active i { transform: translateY(-2px); }
+
+        /* --- MODALS & FAB --- */
+        .fab {
+            position: fixed; bottom: 40px; right: 40px; width: 56px; height: 56px;
+            background: var(--primary-grad); color: white; border-radius: 20px; border: none;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4); font-size: 24px; cursor: pointer; z-index: 95;
+            display: flex; align-items: center; justify-content: center; transition: transform 0.2s;
+        }
+        .fab:active { transform: scale(0.9); }
+
+        .modal-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 100; 
+            display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;
+        }
+        .modal-overlay.show { opacity: 1; }
+        
+        .modal {
+            background: var(--bg-surface); width: 90%; max-width: 480px;
+            border-radius: 24px; padding: 24px; max-height: 85vh; overflow-y: auto; 
+            border: 1px solid var(--border); transform: scale(0.95); transition: transform 0.2s;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .modal-overlay.show .modal { transform: scale(1); }
+
+        input, select, textarea {
+            width: 100%; background: var(--bg-input); border: 1px solid var(--border);
+            color: var(--text-main); padding: 14px; border-radius: 12px; margin-bottom: 16px;
+            font-family: 'Inter', sans-serif; font-size: 1rem; appearance: none;
+        }
+        input:focus, textarea:focus, select:focus { border-color: var(--primary); }
+        
+        .btn { width: 100%; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; border: none; font-size: 1rem; transition: 0.2s; display:flex; justify-content:center; align-items:center; gap:8px;}
+        .btn-primary { background: var(--primary-grad); color: white; box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2); }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-ghost { background: transparent; color: var(--text-muted); }
+        .btn-ghost:hover { background: var(--bg-surface-2); color: var(--text-main); }
+
+        /* --- UTILS --- */
+        .toast-container { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 200; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        .toast { 
+            background: var(--bg-surface); color: var(--text-main); padding: 12px 24px; 
+            border-radius: 50px; border: 1px solid var(--border); box-shadow: var(--shadow-lg);
+            display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem;
+            animation: slideDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .toast i { color: var(--success); font-size: 1.1rem; }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* RESPONSIVE */
+        @media (max-width: 950px) {
+            .sidebar { display: none; }
+            .dashboard-grid { grid-template-columns: 1fr; display: flex; flex-direction: column; }
+            .calendar-widget { display: none; }
+            .mobile-nav { display: flex; }
+            .viewport { padding: 16px 16px 120px 16px; }
+            .top-bar { padding: 0 16px; }
+            .fab { bottom: calc(80px + var(--safe-bottom)); right: 20px; }
+        }
+        
+        /* --- CALCULATOR STYLES --- */
+        #view-calc { max-width: 400px; margin: 0 auto; }
+        #c-disp {
+            background: var(--bg-body); padding: 30px 24px; border-radius: 24px;
+            text-align: right; font-size: 2.5rem; font-weight: 700; margin-bottom: 24px;
+            border: 1px solid var(--border); box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
+            font-variant-numeric: tabular-nums; overflow-x: auto; white-space: nowrap; letter-spacing: -1px;
+        }
+        #c-disp::-webkit-scrollbar { display: none; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+        .calc-btn {
+            aspect-ratio: 1; border-radius: 20px; font-size: 1.4rem; font-weight: 600;
+            border: none; cursor: pointer; transition: transform 0.1s; display: flex; 
+            align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .calc-btn:active { transform: scale(0.92); }
+        .calc-btn.num { background: var(--bg-surface-2); color: var(--text-main); }
+        .calc-btn.op { background: var(--primary); color: white; font-size: 1.6rem; }
+        .calc-btn.fn { background: var(--bg-input); color: var(--primary); }
+        .calc-btn.danger { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+        /* Confetti */
+        #confetti-canvas { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999; }
+    </style>
+</head>
+<body>
+
+    <div class="toast-container" id="toast-container"></div>
+    
+    <canvas id="confetti-canvas"></canvas>
+
+    <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:200; display:none; align-items:center; justify-content:center; backdrop-filter:blur(5px)" id="lightbox" onclick="closeLightbox()">
+        <img id="lb-img" style="max-width:100%; max-height:80vh; border-radius:12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);" alt="Full view">
+    </div>
+
+    <aside class="sidebar">
+        <div class="brand"><i class="ph-fill ph-rocket-launch"></i> SmartOps Pro</div>
+        
+        <div class="nav-item active" onclick="setMode('task')"><i class="ph ph-check-square"></i> <span data-key="tasks">Tasks</span></div>
+        <div class="nav-item" onclick="setMode('order')"><i class="ph ph-shopping-cart"></i> <span data-key="orders">Orders</span></div>
+        <div class="nav-item" onclick="setMode('target')"><i class="ph ph-target"></i> <span data-key="targets">Targets</span></div>
+        
+        <div style="margin-top:auto; padding-top:20px; border-top:1px solid var(--border)">
+             <div class="nav-item" onclick="openToolModal('calc')"><i class="ph ph-toolbox"></i> <span data-key="tools">Tools</span></div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="top-bar">
+            <div class="search-wrapper">
+                <i class="ph ph-magnifying-glass"></i>
+                <input type="text" class="search-input" id="inp-search" placeholder="Search anything..." data-ph-key="search" oninput="render()">
+            </div>
+            
+            <button class="icon-btn" onclick="openSettingsModal()" title="Settings">
+                <i class="ph ph-gear"></i>
+            </button>
+        </div>
+
+        <div class="viewport" id="viewport">
+            <div class="dashboard-grid">
+                
+                <div>
+                    <h2 id="page-title" style="margin:0 0 20px 0; font-size:1.5rem">My Tasks</h2>
+                    <div id="list-container"></div>
+                </div>
+                
+                <div class="calendar-widget">
+                    <div class="cal-header">
+                        <span id="cal-month">Month</span>
+                        <div style="display:flex; gap:10px">
+                             <i class="ph ph-caret-left" style="cursor:pointer" onclick="changeMonth(-1)"></i>
+                             <i class="ph ph-caret-right" style="cursor:pointer" onclick="changeMonth(1)"></i>
+                        </div>
+                    </div>
+                    <div class="cal-grid" id="cal-days"></div>
+                    
+                    <div style="margin-top:30px; background:var(--bg-input); padding:16px; border-radius:16px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:8px; font-weight:600">
+                            <span data-key="dailyGoal">Daily Goal</span>
+                            <span style="color:var(--primary)" id="stat-prog">0%</span>
+                        </div>
+                        <div style="height:8px; background:var(--bg-surface-2); border-radius:4px; overflow:hidden">
+                            <div id="prog-bar" style="height:100%; width:0%; background:var(--primary-grad); transition:width 0.5s cubic-bezier(0.4, 0, 0.2, 1)"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <div class="mobile-nav">
+        <div class="mob-item active" onclick="setMode('task')"><i class="ph ph-check-square"></i><span data-key="tasks">Tasks</span></div>
+        <div class="mob-item" onclick="setMode('order')"><i class="ph ph-shopping-cart"></i><span data-key="orders">Orders</span></div>
+        <div class="mob-item" onclick="setMode('target')"><i class="ph ph-target"></i><span data-key="targets">Targets</span></div>
+        <div class="mob-item" onclick="openToolModal('calc')"><i class="ph ph-toolbox"></i><span data-key="tools">Tools</span></div>
+    </div>
+
+    <button class="fab" onclick="openModal()"><i class="ph ph-plus-bold"></i></button>
+
+    <div class="modal-overlay" id="modal">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px">
+                <h3 style="margin:0" data-key="newItem">New Item</h3>
+                <button class="btn-ghost" style="width:auto; padding:5px" onclick="closeModal()"><i class="ph ph-x"></i></button>
+            </div>
+            
+            <input type="text" id="m-title" placeholder="What needs doing?" data-ph-key="phTitle">
+            <textarea id="m-notes" rows="3" placeholder="Add details..." data-ph-key="phDetails"></textarea>
+            
+            <div style="border:2px dashed var(--border); padding:20px; text-align:center; border-radius:16px; margin-bottom:20px; cursor:pointer; transition:0.2s" onclick="document.getElementById('file-in').click()" id="drop-zone">
+                <i class="ph ph-camera" style="font-size:1.5rem; color:var(--primary); margin-bottom:8px; display:block"></i>
+                <span id="img-status" style="color:var(--text-muted); font-size:0.9rem" data-key="tapPhoto">Tap to add photo</span>
+                <input type="file" id="file-in" hidden accept="image/*" onchange="processImage(this)">
+            </div>
+
+            <div id="grp-task" class="grp">
+                <div style="display:flex; gap:10px">
+                    <input type="date" id="m-date">
+                    <select id="m-prio"><option value="1" data-key="normal">Normal</option><option value="3" data-key="highPrio">High Priority</option></select>
+                </div>
+            </div>
+            
+            <div id="grp-order" class="grp" style="display:none">
+                <div style="display:flex; gap:10px">
+                    <input type="number" id="m-price" placeholder="Price ($)" data-ph-key="phPrice">
+                    <input type="date" id="m-date-o">
+                </div>
+            </div>
+            
+            <div id="grp-target" class="grp" style="display:none">
+                <div style="display:flex; gap:10px">
+                    <input type="number" id="m-goal" placeholder="Target Goal" data-ph-key="phTarget">
+                    <input type="number" id="m-curr" placeholder="Current Progress" data-ph-key="phCurrent">
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="saveItem()" data-key="saveItem">Save Item</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-settings">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px">
+                <h3 style="margin:0" data-key="settings">Settings</h3>
+                <button class="btn-ghost" style="width:auto; padding:5px" onclick="closeSettings()"><i class="ph ph-x"></i></button>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:12px">
+                <button class="btn btn-ghost" onclick="toggleTheme()" style="justify-content:flex-start; text-align:left; border:1px solid var(--border)">
+                    <i class="ph ph-moon" id="theme-icon-btn"></i> <span data-key="toggleTheme">Toggle Theme</span>
+                </button>
+                
+                <button class="btn btn-ghost" onclick="toggleLang()" style="justify-content:flex-start; text-align:left; border:1px solid var(--border)">
+                    <i class="ph ph-translate"></i> <span id="lang-text">Bahasa Melayu</span>
+                </button>
+
+                <div style="height:1px; background:var(--border); margin:10px 0"></div>
+                
+                <button class="btn btn-ghost" onclick="backupData()" style="justify-content:flex-start; text-align:left; border:1px solid var(--border)">
+                    <i class="ph ph-download-simple"></i> <span data-key="backup">Backup Data (JSON)</span>
+                </button>
+                <button class="btn btn-ghost" onclick="document.getElementById('import-file').click()" style="justify-content:flex-start; text-align:left; border:1px solid var(--border)">
+                    <i class="ph ph-upload-simple"></i> <span data-key="restore">Restore Data</span>
+                </button>
+                <input type="file" id="import-file" hidden onchange="importData(this)" accept=".json">
+                
+                <div style="margin-top:20px; font-size:0.8rem; color:var(--text-muted); text-align:center">SmartOps Pro v2.4</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-tools">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div style="display:flex; gap:8px; margin-bottom:20px; background:var(--bg-input); padding:4px; border-radius:12px">
+                <button class="btn" id="tab-calc" onclick="switchTool('calc')" style="flex:1; margin:0; font-size:0.9rem; padding:10px" data-key="calc">Calc</button>
+                <button class="btn btn-ghost" id="tab-conv" onclick="switchTool('conv')" style="flex:1; margin:0; font-size:0.9rem; padding:10px" data-key="conv">Conv</button>
+            </div>
+
+            <div id="view-calc">
+                <div id="c-disp">0</div>
+                <div class="calc-grid">
+                    <button class="calc-btn danger" onclick="cClear()">AC</button>
+                    <button class="calc-btn danger" onclick="cDel()"><i class="ph-bold ph-backspace"></i></button>
+                    <button class="calc-btn fn" onclick="cAdd('%')">%</button>
+                    <button class="calc-btn op" onclick="cAdd('/')">÷</button>
+                    
+                    <button class="calc-btn num" onclick="cAdd('7')">7</button>
+                    <button class="calc-btn num" onclick="cAdd('8')">8</button>
+                    <button class="calc-btn num" onclick="cAdd('9')">9</button>
+                    <button class="calc-btn op" onclick="cAdd('*')">×</button>
+                    
+                    <button class="calc-btn num" onclick="cAdd('4')">4</button>
+                    <button class="calc-btn num" onclick="cAdd('5')">5</button>
+                    <button class="calc-btn num" onclick="cAdd('6')">6</button>
+                    <button class="calc-btn op" onclick="cAdd('-')">−</button>
+                    
+                    <button class="calc-btn num" onclick="cAdd('1')">1</button>
+                    <button class="calc-btn num" onclick="cAdd('2')">2</button>
+                    <button class="calc-btn num" onclick="cAdd('3')">3</button>
+                    <button class="calc-btn op" onclick="cAdd('+')">+</button>
+                    
+                    <button class="calc-btn num" onclick="cAdd('0')" style="grid-column: span 2; aspect-ratio: auto; border-radius: 24px">0</button>
+                    <button class="calc-btn num" onclick="cAdd('.')">.</button>
+                    <button class="calc-btn op" style="background: var(--success)" onclick="cCalc()">=</button>
+                </div>
+            </div>
+
+            <div id="view-conv" style="display:none">
+                <select id="cv-type" onchange="initConv()" style="margin-bottom:20px; font-weight:600">
+                    <option value="len">📏 Length</option>
+                    <option value="wgt">⚖️ Weight</option>
+                    <option value="vol">🧪 Volume</option>
+                    <option value="temp">🌡️ Temperature</option>
+                </select>
+
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+                    <input type="number" id="cv-in" placeholder="0" oninput="doConv()" style="margin:0">
+                    <select id="cv-u1" onchange="doConv()" style="width:100px; margin:0"></select>
+                </div>
+
+                <div style="text-align:center; color:var(--text-muted); padding:10px"><i class="ph-bold ph-arrow-down"></i></div>
+
+                <div style="display:flex; align-items:center; gap:10px">
+                    <div id="cv-out" style="flex:1; background:var(--bg-input); padding:14px; border-radius:12px; border:1px solid var(--border); font-weight:700; min-height:50px; display:flex; align-items:center;">0</div>
+                    <select id="cv-u2" onchange="doConv()" style="width:100px; margin:0"></select>
+                </div>
+            </div>
+
+            <button class="btn btn-ghost" style="margin-top:20px" onclick="closeTools()" data-key="close">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // --- CORE STATE ---
+        const DB_KEY = 'smartops_pro_v2';
+        let items = JSON.parse(localStorage.getItem(DB_KEY)) || [];
+        let mode = 'task'; // task, order, target
+        let imgBuffer = null;
+        let isDark = localStorage.getItem('smartops_theme') === 'dark';
+        let currentLang = localStorage.getItem('smartops_lang') || 'en';
+        let calDate = new Date();
+
+        // --- TRANSLATIONS ---
+        const LANG = {
+            en: {
+                tasks: 'Tasks', orders: 'Orders', targets: 'Targets', tools: 'Tools',
+                pageTasks: 'My Tasks', pageOrders: 'Purchase Orders', pageTargets: 'Performance Targets',
+                search: 'Search anything...', dailyGoal: 'Daily Goal', newItem: 'New Item',
+                phTitle: 'What needs doing?', phDetails: 'Add details...', tapPhoto: 'Tap to add photo',
+                normal: 'Normal', highPrio: 'High Priority', phPrice: 'Price ($)', phTarget: 'Target Goal', phCurrent: 'Current Progress',
+                saveItem: 'Save Item', settings: 'Settings', toggleTheme: 'Toggle Theme',
+                backup: 'Backup Data (JSON)', restore: 'Restore Data', calc: 'Calc', conv: 'Conv', close: 'Close',
+                noItems: 'No items found. Tap + to add one.'
+            },
+            ms: {
+                tasks: 'Tugasan', orders: 'Pesanan', targets: 'Sasaran', tools: 'Alatan',
+                pageTasks: 'Tugasan Saya', pageOrders: 'Pesanan Belian', pageTargets: 'Sasaran Prestasi',
+                search: 'Cari apa sahaja...', dailyGoal: 'Matlamat Harian', newItem: 'Item Baru',
+                phTitle: 'Apa yang perlu dibuat?', phDetails: 'Tambah butiran...', tapPhoto: 'Tekan untuk tambah foto',
+                normal: 'Biasa', highPrio: 'Keutamaan Tinggi', phPrice: 'Harga ($)', phTarget: 'Sasaran Matlamat', phCurrent: 'Kemajuan Semasa',
+                saveItem: 'Simpan Item', settings: 'Tetapan', toggleTheme: 'Tukar Tema',
+                backup: 'Simpan Data (JSON)', restore: 'Pulihkan Data', calc: 'Kira', conv: 'Tukar', close: 'Tutup',
+                noItems: 'Tiada item dijumpai. Tekan + untuk tambah.'
+            }
+        };
+
+        // --- INIT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme();
+            applyLang();
+            render();
+            setupScroll();
+            initConv();
+            
+            // Handle Android Back Button
+            window.onpopstate = () => {
+                ['modal', 'modal-tools', 'modal-settings', 'lightbox'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el && el.style.display === 'flex') {
+                        el.style.display = 'none';
+                        el.classList.remove('show');
+                    }
+                });
+            };
+        });
+
+        // Get Local Date String (YYYY-MM-DD) to fix timezone issues
+        function getLocalDateStr() {
+            const d = new Date();
+            const offset = d.getTimezoneOffset() * 60000;
+            return new Date(d - offset).toISOString().split('T')[0];
+        }
+
+        function setupScroll() {
+            const vp = document.querySelector('.viewport');
+            if(vp) {
+                vp.addEventListener('scroll', (e) => {
+                    if(e.target.scrollTop > 10) document.body.classList.add('scrolled');
+                    else document.body.classList.remove('scrolled');
+                });
+            }
+        }
+
+        // --- THEME ---
+        function applyTheme() {
+            document.body.className = isDark ? '' : 'light-mode';
+            const iconClass = isDark ? 'ph ph-sun' : 'ph ph-moon';
+            const iconBtn = document.getElementById('theme-icon-btn');
+            if(iconBtn) iconBtn.className = iconClass;
+            
+            localStorage.setItem('smartops_theme', isDark ? 'dark' : 'light');
+            document.querySelector('meta[name="theme-color"]').content = isDark ? '#0f172a' : '#f8fafc';
+        }
+        function toggleTheme() { isDark = !isDark; applyTheme(); }
+
+        // --- LANGUAGE ---
+        function applyLang() {
+            const t = LANG[currentLang];
+            document.querySelectorAll('[data-key]').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if(t[key]) el.innerText = t[key];
+            });
+            document.querySelectorAll('[data-ph-key]').forEach(el => {
+                const key = el.getAttribute('data-ph-key');
+                if(t[key]) el.placeholder = t[key];
+            });
+            document.getElementById('lang-text').innerText = currentLang === 'en' ? 'Bahasa Melayu' : 'English';
+            setMode(mode); 
+        }
+
+        function toggleLang() {
+            currentLang = currentLang === 'en' ? 'ms' : 'en';
+            localStorage.setItem('smartops_lang', currentLang);
+            applyLang();
+        }
+
+        // --- NAVIGATION & UI ---
+        function setMode(m) {
+            mode = m;
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.mob-item').forEach(el => el.classList.remove('active'));
+            
+            const sideIdx = m === 'task' ? 0 : m === 'order' ? 1 : 2;
+            const sideItems = document.querySelectorAll('.sidebar .nav-item');
+            if(sideItems[sideIdx]) sideItems[sideIdx].classList.add('active');
+
+            const mobItems = document.querySelectorAll('.mob-item');
+            if(mobItems[sideIdx]) mobItems[sideIdx].classList.add('active');
+
+            const t = LANG[currentLang];
+            const titles = { task: t.pageTasks, order: t.pageOrders, target: t.pageTargets };
+            document.getElementById('page-title').innerText = titles[m];
+
+            ['grp-task','grp-order','grp-target'].forEach(id => document.getElementById(id).style.display = 'none');
+            document.getElementById(`grp-${m}`).style.display = 'block';
+
+            render();
+        }
+
+        function render() {
+            const list = document.getElementById('list-container');
+            const q = document.getElementById('inp-search').value.toLowerCase();
+            list.innerHTML = '';
+
+            const filtered = items.filter(i => i.type === mode && (i.title.toLowerCase().includes(q) || i.notes.toLowerCase().includes(q)))
+                                  .sort((a,b) => (a.done === b.done) ? 0 : a.done ? 1 : -1);
+
+            if(!filtered.length) {
+                list.innerHTML = `<div style="text-align:center; padding:60px 20px; color:var(--text-muted)">
+                    <i class="ph ph-tray" style="font-size:3rem; opacity:0.5; margin-bottom:10px"></i><br>
+                    ${LANG[currentLang].noItems}
+                </div>`;
+            }
+
+            filtered.forEach(item => {
+                const el = document.createElement('div');
+                el.className = `card ${item.done ? 'done' : ''}`;
+                el.onclick = () => toggleDone(item.id);
+                
+                let badges = '';
+                if(item.prio == 3 && !item.done) badges += `<span class="badge bg-high"><i class="ph-fill ph-fire"></i> ${LANG[currentLang].highPrio}</span> `;
+                if(item.price) badges += `<span class="badge bg-price">$${item.price}</span> `;
+                
+                let progress = '';
+                if(item.type === 'target') {
+                    const pct = Math.min(100, Math.round((item.curr / item.goal) * 100));
+                    progress = `
+                    <div style="margin-top:8px; display:flex; align-items:center; gap:8px">
+                        <div style="flex:1; height:6px; background:var(--bg-surface-2); border-radius:3px; overflow:hidden">
+                            <div style="width:${pct}%; height:100%; background:var(--primary)"></div>
+                        </div>
+                        <div style="font-size:0.75rem; font-weight:600">${item.curr}/${item.goal}</div>
+                    </div>`;
+                }
+
+                el.innerHTML = `
+                    ${item.img ? `<img src="${item.img}" class="thumb" onclick="event.stopPropagation(); showLightbox('${item.img}')" alt="Thumbnail">` : ''}
+                    <div class="card-content">
+                        <div class="card-title">${item.title}</div>
+                        ${item.notes ? `<div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">${item.notes}</div>` : ''}
+                        <div class="card-meta">
+                            ${badges}
+                            ${item.date ? `<span><i class="ph ph-calendar-blank"></i> ${item.date}</span>` : ''}
+                        </div>
+                        ${progress}
+                    </div>
+                    <button class="btn-del" onclick="event.stopPropagation(); deleteItem('${item.id}')" aria-label="Delete"><i class="ph ph-trash"></i></button>
+                `;
+                list.appendChild(el);
+            });
+            
+            updateStats();
+            renderCal();
+        }
+
+        // --- ACTIONS ---
+        function toggleDone(id) {
+            const item = items.find(i => i.id === id);
+            if(item) {
+                if(item.type === 'target') {
+                    item.curr = (parseInt(item.curr) || 0) + 1;
+                    if(item.curr >= item.goal) {
+                        if(!item.done) {
+                            fireConfetti();
+                            showToast("Target Reached! 🎉");
+                        }
+                        item.done = true;
+                    }
+                } else {
+                    item.done = !item.done;
+                    if(item.done) fireConfetti();
+                }
+                saveData();
+            }
+        }
+
+        function saveItem() {
+            const title = document.getElementById('m-title').value.trim();
+            if(!title) return showToast("Please enter a title");
+
+            const newItem = {
+                id: Date.now().toString(),
+                type: mode,
+                title: title,
+                notes: document.getElementById('m-notes').value,
+                img: imgBuffer,
+                done: false,
+                date: getLocalDateStr() // Using local date fix
+            };
+
+            if(mode === 'task') {
+                newItem.date = document.getElementById('m-date').value || newItem.date;
+                newItem.prio = document.getElementById('m-prio').value;
+            } else if(mode === 'order') {
+                newItem.price = document.getElementById('m-price').value;
+                newItem.date = document.getElementById('m-date-o').value || newItem.date;
+            } else if(mode === 'target') {
+                newItem.goal = document.getElementById('m-goal').value || 10;
+                newItem.curr = document.getElementById('m-curr').value || 0;
+            }
+
+            items.unshift(newItem); 
+            saveData();
+            closeModal();
+            showToast("Saved successfully");
+        }
+
+        function deleteItem(id) {
+            if(confirm("Are you sure you want to delete this?")) {
+                items = items.filter(i => i.id !== id);
+                saveData();
+                showToast("Item deleted");
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem(DB_KEY, JSON.stringify(items));
+                render();
+            } catch(e) { 
+                alert("Storage is full! Delete some items or remove photos."); 
+            }
+        }
+
+        function updateStats() {
+            const total = items.length;
+            const done = items.filter(i => i.done || (i.type==='target' && i.curr>=i.goal)).length;
+            const pct = total ? Math.round((done/total)*100) : 0;
+            document.getElementById('stat-prog').innerText = pct + '%';
+            document.getElementById('prog-bar').style.width = pct + '%';
+        }
+
+        function processImage(input) {
+            const file = input.files[0];
+            if(!file || !file.type.startsWith('image/')) {
+                showToast("Invalid Image File");
+                return;
+            }
+            document.getElementById('img-status').innerText = "Processing...";
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const MAX_W = 800; // Constrain width
+                    const scale = img.width > MAX_W ? MAX_W / img.width : 1;
+                    canvas.width = img.width * scale;
+                    canvas.height = img.height * scale;
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    // FIXED: Lower quality to 0.5 to save LocalStorage space
+                    imgBuffer = canvas.toDataURL('image/jpeg', 0.5); 
+                    document.getElementById('img-status').innerText = "✅ Photo Added";
+                    document.getElementById('drop-zone').style.borderColor = getComputedStyle(document.body).getPropertyValue('--success');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // --- CALENDAR ---
+        function renderCal() {
+            const grid = document.getElementById('cal-days');
+            grid.innerHTML = '';
+            document.getElementById('cal-month').innerText = calDate.toLocaleDateString(currentLang === 'ms' ? 'ms-MY' : 'en-US', { month: 'long', year: 'numeric' });
+            
+            const y = calDate.getFullYear(), m = calDate.getMonth();
+            const firstDay = new Date(y, m, 1).getDay();
+            const daysInMonth = new Date(y, m + 1, 0).getDate();
+            const today = getLocalDateStr();
+
+            for(let i=0; i<firstDay; i++) grid.innerHTML += `<div></div>`;
+            for(let i=1; i<=daysInMonth; i++) {
+                const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                const hasTask = items.some(x => x.date === dateStr && !x.done);
+                const isActive = dateStr === today ? 'active' : '';
+                const evtClass = hasTask ? 'has-event' : '';
+                grid.innerHTML += `<div class="cal-day ${isActive} ${evtClass}">${i}</div>`;
+            }
+        }
+        function changeMonth(d) { calDate.setMonth(calDate.getMonth() + d); renderCal(); }
+
+        // --- MODALS & TOOLS ---
+        function openModal() {
+            document.getElementById('m-title').value = '';
+            document.getElementById('m-notes').value = '';
+            document.getElementById('m-price').value = '';
+            document.getElementById('m-goal').value = '';
+            document.getElementById('m-curr').value = '';
+            document.getElementById('file-in').value = '';
+            
+            // Fix Date default in Modal
+            document.getElementById('m-date').value = getLocalDateStr();
+            document.getElementById('m-date-o').value = getLocalDateStr();
+            
+            imgBuffer = null;
+            document.getElementById('img-status').innerText = LANG[currentLang].tapPhoto;
+            document.getElementById('drop-zone').style.borderColor = 'var(--border)';
+            
+            const m = document.getElementById('modal');
+            m.style.display = 'flex';
+            setTimeout(() => m.classList.add('show'), 10);
+            window.history.pushState({modal:1}, null, "");
+        }
+
+        function closeModal() {
+            const m = document.getElementById('modal');
+            m.classList.remove('show');
+            setTimeout(() => m.style.display = 'none', 200);
+        }
+
+        // Tools (Only Calc/Conv)
+        function openToolModal(initialTab = 'calc') {
+            const m = document.getElementById('modal-tools');
+            m.style.display = 'flex';
+            setTimeout(() => m.classList.add('show'), 10);
+            window.history.pushState({tools:1}, null, "");
+            switchTool(initialTab);
+        }
+        function closeTools() {
+            const m = document.getElementById('modal-tools');
+            m.classList.remove('show');
+            setTimeout(() => m.style.display = 'none', 200);
+        }
+        function switchTool(t) {
+            ['calc','conv'].forEach(x => {
+                document.getElementById('view-'+x).style.display = (x===t) ? 'block' : 'none';
+                document.getElementById('tab-'+x).className = (x===t) ? 'btn' : 'btn-ghost';
+            });
+            if(t === 'conv') initConv();
+        }
+
+        // Settings
+        function openSettingsModal() {
+            const m = document.getElementById('modal-settings');
+            m.style.display = 'flex';
+            setTimeout(() => m.classList.add('show'), 10);
+            window.history.pushState({settings:1}, null, "");
+        }
+        function closeSettings() {
+            const m = document.getElementById('modal-settings');
+            m.classList.remove('show');
+            setTimeout(() => m.style.display = 'none', 200);
+        }
+
+        // Calculator Logic
+        let cExp = "";
+        function cAdd(v) { cExp += v; updateDisp(); }
+        function cClear() { cExp = ""; updateDisp(); }
+        function cDel() { cExp = cExp.toString().slice(0, -1); updateDisp(); }
+        function cCalc() {
+            try {
+                let cleanExp = cExp.replace('×', '*').replace('÷', '/');
+                if(cleanExp.includes('%')) cleanExp = cleanExp.replace(/(\d+)%/g, '($1/100)');
+                if(/[^0-9\+\-\*\/\.\(\)%]/.test(cleanExp)) throw new Error('Invalid');
+                const result = new Function('return ' + cleanExp)();
+                if(!isFinite(result) || isNaN(result)) throw new Error('Error');
+                cExp = String(Math.round(result * 100000000) / 100000000);
+                updateDisp();
+            } catch { cExp = ""; document.getElementById('c-disp').innerText = "Error"; }
+        }
+        function updateDisp() { document.getElementById('c-disp').innerText = cExp || "0"; }
+
+        // Converter
+        const uDat = {
+            len: { m:1, km:1000, cm:0.01, mm:0.001, ft:0.3048, in:0.0254, mi:1609.34 },
+            wgt: { kg:1, g:0.001, lb:0.453592, oz:0.0283495 },
+            vol: { l:1, ml:0.001, gal:3.78541, qt:0.946353 },
+            temp: { c:'c', f:'f', k:'k' }
+        };
+
+        function initConv() {
+            const type = document.getElementById('cv-type').value;
+            const u1 = document.getElementById('cv-u1'), u2 = document.getElementById('cv-u2');
+            u1.innerHTML=''; u2.innerHTML='';
+            Object.keys(uDat[type]).forEach(k => {
+                const opt = k.toUpperCase();
+                u1.innerHTML += `<option value="${k}">${opt}</option>`;
+                u2.innerHTML += `<option value="${k}">${opt}</option>`;
+            });
+            u2.selectedIndex = 1; doConv();
+        }
+
+        function doConv() {
+            const type = document.getElementById('cv-type').value;
+            const val = parseFloat(document.getElementById('cv-in').value) || 0;
+            const from = document.getElementById('cv-u1').value;
+            const to = document.getElementById('cv-u2').value;
+            let res = 0;
+            if(type === 'temp') {
+                let cel = val; 
+                if(from === 'f') cel = (val - 32) * 5/9;
+                if(from === 'k') cel = val - 273.15;
+                if(to === 'c') res = cel;
+                if(to === 'f') res = (cel * 9/5) + 32;
+                if(to === 'k') res = cel + 273.15;
+            } else {
+                const base = val * uDat[type][from]; 
+                res = base / uDat[type][to];
+            }
+            document.getElementById('cv-out').innerText = parseFloat(res.toPrecision(6));
+        }
+
+        // Utils
+        function showLightbox(src) {
+            document.getElementById('lb-img').src = src;
+            document.getElementById('lightbox').style.display = 'flex';
+            window.history.pushState({lb:1}, null, "");
+        }
+        function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; }
+        
+        function showToast(msg) {
+            const c = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerHTML = `<i class="ph-fill ph-check-circle"></i> ${msg}`;
+            c.appendChild(t);
+            setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(), 300) }, 3000);
+        }
+
+        function fireConfetti() {
+            const c = document.getElementById('confetti-canvas');
+            const ctx = c.getContext('2d');
+            c.width = window.innerWidth; c.height = window.innerHeight;
+            
+            const particles = Array.from({length: 80}, () => ({
+                x: c.width / 2, y: c.height / 2,
+                vx: (Math.random() - 0.5) * 20,
+                vy: (Math.random() - 0.5) * 20 - 5,
+                color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+                life: 100
+            }));
+
+            function step() {
+                ctx.clearRect(0, 0, c.width, c.height);
+                let active = false;
+                particles.forEach(p => {
+                    if (p.life > 0) {
+                        p.x += p.vx; p.y += p.vy; p.vy += 0.5; p.life--;
+                        ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 6, 6);
+                        active = true;
+                    }
+                });
+                if (active) requestAnimationFrame(step);
+                else ctx.clearRect(0, 0, c.width, c.height);
+            }
+            step();
+        }
+
+        function backupData() {
+            const blob = new Blob([localStorage.getItem(DB_KEY)], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `smartops_backup_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast("Backup downloaded");
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if(!Array.isArray(data)) throw new Error();
+                    localStorage.setItem(DB_KEY, JSON.stringify(data));
+                    items = data;
+                    render();
+                    showToast("Data restored!");
+                    closeSettings();
+                } catch { showToast("Invalid File Format"); }
+                input.value = ''; 
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
