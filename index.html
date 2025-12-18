@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0f172a">
-    <meta name="description" content="SmartOps Pro - Enterprise Productivity">
+    <meta name="description" content="SmartOps Pro - Enterprise Productivity System">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="SmartOps">
-    <title>SmartOps Pro v2.4</title>
-    <link rel="manifest" href="manifest.json">
+    <title>SmartOps Pro v3.1</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,6 +17,7 @@
 
     <style>
         :root {
+            /* Core Palette */
             --bg-body: #0f172a;
             --bg-surface: #1e293b;
             --bg-surface-2: #334155;
@@ -25,16 +25,18 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border: #334155;
+            
+            /* Brand Colors */
             --primary: #6366f1;
-            --primary-hover: #4f46e5;
             --primary-grad: linear-gradient(135deg, #6366f1, #8b5cf6);
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            
+            /* Dimensions & Effects */
             --radius: 16px;
             --safe-bottom: env(safe-area-inset-bottom);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
 
         body.light-mode {
@@ -50,6 +52,7 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        
         body {
             margin: 0; font-family: 'Inter', sans-serif;
             background-color: var(--bg-body); color: var(--text-main);
@@ -61,7 +64,6 @@
         .sidebar {
             width: 260px; background: var(--bg-surface); border-right: 1px solid var(--border);
             display: flex; flex-direction: column; padding: 24px; z-index: 50;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .brand {
@@ -82,50 +84,42 @@
         
         .top-bar { 
             height: 70px; display: flex; align-items: center; padding: 0 24px; gap: 12px; flex-shrink: 0; 
-            border-bottom: 1px solid transparent; transition: border 0.2s; z-index: 20;
+            border-bottom: 1px solid var(--border);
         }
-        .scrolled .top-bar { border-bottom: 1px solid var(--border); background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); }
-        body.light-mode .scrolled .top-bar { background: rgba(255, 255, 255, 0.8); }
 
         .search-wrapper { position: relative; flex: 1; max-width: 400px; }
         .search-wrapper i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
         .search-input {
             width: 100%; background: var(--bg-surface); border: 1px solid var(--border);
             padding: 10px 10px 10px 42px; border-radius: 50px; color: var(--text-main);
-            font-weight: 500; font-size: 0.95rem; transition: 0.2s;
+            font-size: 0.95rem; transition: 0.2s;
         }
         .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
 
-        .icon-btn {
-            background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-muted);
-            width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.2s; font-size: 1.25rem;
-        }
-        .icon-btn:hover { background: var(--bg-surface-2); color: var(--text-main); border-color: var(--primary); }
-
-        .viewport { flex: 1; padding: 24px; overflow-y: auto; scroll-behavior: smooth; padding-bottom: 120px; }
+        .viewport { flex: 1; padding: 24px; overflow-y: auto; padding-bottom: 120px; scroll-behavior: smooth; }
         .dashboard-grid { display: grid; grid-template-columns: 1fr 340px; gap: 24px; max-width: 1400px; margin: 0 auto; }
 
+        /* --- CARDS --- */
         .card {
             background: var(--bg-surface); border-radius: var(--radius); padding: 20px;
-            box-shadow: var(--shadow-sm); border: 1px solid var(--border);
-            display: flex; gap: 16px; position: relative; transition: all 0.2s;
-            cursor: pointer; margin-bottom: 16px; user-select: none;
+            border: 1px solid var(--border); display: flex; gap: 16px; 
+            margin-bottom: 16px; transition: all 0.2s; cursor: pointer; position: relative;
         }
-        .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
-        .card.done .card-content { opacity: 0.5; text-decoration: line-through; }
+        .card:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: var(--shadow-lg); }
+        .card.done { opacity: 0.6; }
+        .card.done .card-title { text-decoration: line-through; }
         
         .thumb { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; background: var(--bg-surface-2); flex-shrink: 0; }
-        .card-content { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-        .card-title { font-weight: 700; font-size: 1rem; margin-bottom: 4px; line-height: 1.3; }
-        .card-meta { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 10px; align-items: center; }
+        .card-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .card-title { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+        .card-meta { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
         
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; width: fit-content; gap:4px; }
         .bg-price { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .bg-high { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-        .btn-del { background: transparent; border: none; color: var(--text-muted); padding: 8px; border-radius: 8px; cursor: pointer; transition: 0.2s; z-index: 2; }
-        .btn-del:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .bg-target { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .bg-date { background: var(--bg-surface-2); color: var(--text-muted); }
 
+        /* --- CALENDAR --- */
         .calendar-widget {
             background: var(--bg-surface); border-radius: var(--radius); padding: 24px;
             height: fit-content; position: sticky; top: 0; border: 1px solid var(--border);
@@ -134,101 +128,96 @@
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; }
         .cal-day {
             aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-            border-radius: 8px; font-size: 0.9rem; color: var(--text-muted); cursor: pointer;
-            transition: 0.2s; font-weight: 500;
+            border-radius: 8px; font-size: 0.85rem; color: var(--text-muted); cursor: pointer; transition: 0.2s;
         }
         .cal-day:hover { background: var(--bg-surface-2); color: var(--text-main); }
-        .cal-day.active { background: var(--primary); color: white; }
-        .cal-day.has-event { border-bottom: 2px solid var(--primary); }
+        .cal-day.active { background: var(--primary); color: white; font-weight: 700; }
 
+        /* --- MOBILE NAV --- */
         .mobile-nav { 
             display: none; position: fixed; bottom: 0; left: 0; width: 100%;
             background: var(--bg-surface); border-top: 1px solid var(--border);
-            padding: 12px 24px calc(12px + var(--safe-bottom)) 24px; z-index: 90;
-            justify-content: space-between;
+            padding: 12px 10px calc(12px + var(--safe-bottom)) 10px; z-index: 90;
         }
-        .mob-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; cursor: pointer; flex: 1; }
-        .mob-item i { font-size: 1.5rem; transition: 0.2s; }
+        .mob-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 0.7rem; font-weight: 600; cursor: pointer; }
         .mob-item.active { color: var(--primary); }
 
         .fab {
-            position: fixed; bottom: 40px; right: 40px; width: 56px; height: 56px;
+            position: fixed; bottom: 40px; right: 40px; width: 60px; height: 60px;
             background: var(--primary-grad); color: white; border-radius: 20px; border: none;
             box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4); font-size: 24px; cursor: pointer; z-index: 95;
-            display: flex; align-items: center; justify-content: center; transition: transform 0.2s;
+            transition: transform 0.2s;
         }
+        .fab:active { transform: scale(0.95); }
 
+        /* --- MODALS --- */
         .modal-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 100; 
-            display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;
+            display: none; align-items: center; justify-content: center; opacity: 0; transition: 0.2s;
         }
         .modal-overlay.show { opacity: 1; display: flex; }
         .modal {
             background: var(--bg-surface); width: 95%; max-width: 480px;
-            border-radius: 24px; padding: 24px; max-height: 90vh; overflow-y: auto; 
-            border: 1px solid var(--border); transform: scale(0.95); transition: transform 0.2s;
+            border-radius: 24px; padding: 24px; border: 1px solid var(--border);
+            max-height: 90vh; overflow-y: auto;
         }
-        .modal-overlay.show .modal { transform: scale(1); }
 
-        input, select, textarea {
+        input, textarea, select {
             width: 100%; background: var(--bg-input); border: 1px solid var(--border);
-            color: var(--text-main); padding: 14px; border-radius: 12px; margin-bottom: 16px;
-            font-family: 'Inter', sans-serif; font-size: 1rem;
+            padding: 14px; border-radius: 12px; color: var(--text-main); margin-bottom: 12px; font-family: inherit; font-size: 1rem;
+        }
+        
+        /* Dark mode date picker fix */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1); opacity: 0.5; cursor: pointer;
+        }
+        body.light-mode input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0);
         }
 
-        .btn { width: 100%; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; border: none; font-size: 1rem; transition: 0.2s; display:flex; justify-content:center; align-items:center; gap:8px;}
+        .btn { width: 100%; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; display:flex; justify-content:center; align-items:center; gap:8px; transition: 0.2s; font-size: 1rem; }
         .btn-primary { background: var(--primary-grad); color: white; }
         .btn-ghost { background: transparent; color: var(--text-muted); }
+        .btn-ghost:hover { background: var(--bg-surface-2); color: var(--text-main); }
 
-        /* --- MODERN CALCULATOR --- */
+        /* --- TOOLS UI --- */
         .calc-container { background: var(--bg-input); border-radius: 20px; padding: 16px; border: 1px solid var(--border); }
-        .calc-screen {
-            background: transparent; padding: 10px; margin-bottom: 16px; text-align: right; min-height: 100px;
-            display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden;
+        .calc-screen { text-align: right; min-height: 80px; display: flex; flex-direction: column; justify-content: flex-end; padding: 10px; margin-bottom: 10px; }
+        #c-history { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px; min-height: 1rem; }
+        #c-disp { font-size: 2rem; font-weight: 700; word-break: break-all; }
+        
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .calc-btn { 
+            aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--border); 
+            background: var(--bg-surface); color: var(--text-main); font-weight: 600; 
+            cursor: pointer; font-size: 1.2rem; transition: 0.1s;
         }
-        #c-history { font-size: 0.9rem; color: var(--text-muted); min-height: 1.2em; margin-bottom: 4px; }
-        #c-disp { font-size: 2.2rem; font-weight: 700; color: var(--text-main); word-break: break-all; }
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .calc-btn {
-            aspect-ratio: 1; border-radius: 16px; border: none; font-size: 1.2rem; font-weight: 600;
-            cursor: pointer; transition: 0.15s; display: flex; align-items: center; justify-content: center;
-            background: var(--bg-surface); color: var(--text-main); border: 1px solid var(--border);
-        }
-        .calc-btn:active { transform: scale(0.92); background: var(--bg-surface-2); }
-        .calc-btn.op { background: rgba(99, 102, 241, 0.1); color: var(--primary); font-size: 1.4rem; }
-        .calc-btn.fn { background: var(--bg-surface-2); color: var(--text-muted); }
-        .calc-btn.danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-        .calc-btn.eq { background: var(--primary-grad); color: white; }
+        .calc-btn:active { transform: scale(0.95); }
+        .calc-btn.op { background: rgba(99, 102, 241, 0.1); color: var(--primary); border-color: transparent; }
+        .calc-btn.eq { background: var(--primary-grad); color: white; border: none; }
+        .calc-btn.fn { background: var(--bg-surface-2); color: var(--text-muted); font-size: 1rem; }
 
-        /* --- MODERN CONVERTER --- */
-        .conv-card {
-            background: var(--bg-input); border: 1px solid var(--border); padding: 16px; border-radius: 16px; margin-bottom: 12px;
-        }
-        .conv-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; display: block; }
+        /* Converter UI */
+        .conv-card { background: var(--bg-input); border: 1px solid var(--border); padding: 16px; border-radius: 16px; margin-bottom: 12px; }
         .conv-row { display: flex; align-items: center; gap: 12px; }
         .conv-input { margin-bottom: 0 !important; font-size: 1.25rem !important; font-weight: 700 !important; border: none !important; background: transparent !important; padding: 0 !important; }
-        .conv-select { width: 100px !important; margin-bottom: 0 !important; padding: 8px !important; background: var(--bg-surface) !important; font-size: 0.85rem !important; }
+        .conv-select { width: 110px !important; margin-bottom: 0 !important; padding: 8px !important; background: var(--bg-surface) !important; font-size: 0.85rem !important; font-weight: 600; }
         .conv-swap {
             width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white;
             display: flex; align-items: center; justify-content: center; margin: -20px auto 10px auto;
             position: relative; z-index: 2; cursor: pointer; border: 4px solid var(--bg-surface);
         }
 
-        /* Drawing Note */
-        .draw-overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 120; background: rgba(0,0,0,0.85); padding: 20px; }
+        /* Drawing */
+        .draw-overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 200; background: rgba(0,0,0,0.9); }
         .draw-overlay.show { display: flex; }
-        .draw-panel { width: 100%; max-width: 900px; height: 85vh; border-radius: 18px; overflow: hidden; display:flex; flex-direction:column; background: var(--bg-body); border: 1px solid var(--border); }
-        .draw-toolbar { display:flex; gap:8px; padding:10px; align-items:center; border-bottom:1px solid var(--border); }
-        canvas#draw-canvas { flex:1; touch-action: none; background: #000; }
+        .draw-panel { width: 95%; height: 85vh; background: #fff; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border); }
+        .draw-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface); border-bottom: 1px solid var(--border); color: var(--text-main); }
+        canvas#draw-canvas { flex: 1; background: #fff; touch-action: none; cursor: crosshair; }
 
-        /* UTILS */
-        .toast-container { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 200; display: flex; flex-direction: column; gap: 8px; }
-        .toast { background: var(--bg-surface); color: var(--text-main); padding: 12px 24px; border-radius: 50px; border: 1px solid var(--border); display: flex; align-items: center; gap: 8px; font-weight: 600; box-shadow: var(--shadow-lg); }
-        
         @media (max-width: 950px) {
-            .sidebar { display: none; }
-            .calendar-widget { display: none; }
+            .sidebar, .calendar-widget { display: none; }
             .mobile-nav { display: flex; }
             .dashboard-grid { grid-template-columns: 1fr; }
             .fab { bottom: calc(80px + var(--safe-bottom)); right: 20px; }
@@ -237,16 +226,14 @@
 </head>
 <body>
 
-    <div class="toast-container" id="toast-container"></div>
-    <canvas id="confetti-canvas" style="position:fixed; inset:0; pointer-events:none; z-index:1000"></canvas>
-
     <aside class="sidebar">
         <div class="brand"><i class="ph-fill ph-rocket-launch"></i> SmartOps Pro</div>
-        <div class="nav-item active" onclick="setMode('task')"><i class="ph ph-check-square"></i> <span data-key="tasks">Tasks</span></div>
-        <div class="nav-item" onclick="setMode('order')"><i class="ph ph-shopping-cart"></i> <span data-key="orders">Orders</span></div>
-        <div class="nav-item" onclick="setMode('target')"><i class="ph ph-target"></i> <span data-key="targets">Targets</span></div>
-        <div style="margin-top:auto; padding-top:20px; border-top:1px solid var(--border)">
-             <div class="nav-item" onclick="openToolModal('calc')"><i class="ph ph-toolbox"></i> <span data-key="tools">Tools</span></div>
+        <div class="nav-item active" onclick="setMode('task')"><i class="ph ph-check-square"></i> <span data-i18n="nav_tasks">Tasks</span></div>
+        <div class="nav-item" onclick="setMode('order')"><i class="ph ph-shopping-cart"></i> <span data-i18n="nav_orders">Orders</span></div>
+        <div class="nav-item" onclick="setMode('target')"><i class="ph ph-target"></i> <span data-i18n="nav_targets">Targets</span></div>
+        <div style="margin-top:auto">
+             <div class="nav-item" onclick="openToolModal()"><i class="ph ph-toolbox"></i> <span data-i18n="nav_tools">Tools</span></div>
+             <div class="nav-item" onclick="openSettingsModal()"><i class="ph ph-gear"></i> <span data-i18n="nav_settings">Settings</span></div>
         </div>
     </aside>
 
@@ -256,21 +243,21 @@
                 <i class="ph ph-magnifying-glass"></i>
                 <input type="text" class="search-input" id="inp-search" placeholder="Search..." oninput="render()">
             </div>
-            <button class="icon-btn" onclick="openSettingsModal()"><i class="ph ph-gear"></i></button>
+            <button class="btn btn-ghost" style="width:40px; padding:0" onclick="openSettingsModal()"><i class="ph ph-gear" style="font-size:1.5rem"></i></button>
         </div>
 
         <div class="viewport">
             <div class="dashboard-grid">
                 <div>
-                    <h2 id="page-title" style="margin:0 0 20px 0; font-size:1.5rem">My Tasks</h2>
+                    <h2 id="page-title" style="margin:0 0 20px 0;">My Tasks</h2>
                     <div id="list-container"></div>
                 </div>
                 <div class="calendar-widget">
                     <div class="cal-header">
                         <span id="cal-month"></span>
                         <div style="display:flex; gap:10px">
-                             <i class="ph ph-caret-left" onclick="changeMonth(-1)"></i>
-                             <i class="ph ph-caret-right" onclick="changeMonth(1)"></i>
+                             <i class="ph ph-caret-left" style="cursor:pointer" onclick="changeMonth(-1)"></i>
+                             <i class="ph ph-caret-right" style="cursor:pointer" onclick="changeMonth(1)"></i>
                         </div>
                     </div>
                     <div class="cal-grid" id="cal-days"></div>
@@ -280,46 +267,53 @@
     </main>
 
     <div class="mobile-nav">
-        <div class="mob-item active" onclick="setMode('task')"><i class="ph ph-check-square"></i><span>Tasks</span></div>
-        <div class="mob-item" onclick="setMode('order')"><i class="ph ph-shopping-cart"></i><span>Orders</span></div>
-        <div class="mob-item" onclick="setMode('target')"><i class="ph ph-target"></i><span>Targets</span></div>
-        <div class="mob-item" onclick="openToolModal('calc')"><i class="ph ph-toolbox"></i><span>Tools</span></div>
+        <div class="mob-item active" onclick="setMode('task')"><i class="ph ph-check-square"></i><span data-i18n="nav_tasks">Tasks</span></div>
+        <div class="mob-item" onclick="setMode('order')"><i class="ph ph-shopping-cart"></i><span data-i18n="nav_orders">Orders</span></div>
+        <div class="mob-item" onclick="setMode('target')"><i class="ph ph-target"></i><span data-i18n="nav_targets">Targets</span></div>
+        <div class="mob-item" onclick="openToolModal()"><i class="ph ph-toolbox"></i><span data-i18n="nav_tools">Tools</span></div>
+        <div class="mob-item" onclick="openSettingsModal()"><i class="ph ph-gear"></i><span data-i18n="nav_settings">Settings</span></div>
     </div>
 
     <button class="fab" onclick="openModal()"><i class="ph ph-plus-bold"></i></button>
 
-    <div class="modal-overlay" id="modal">
+    <div class="modal-overlay" id="modal-entry">
         <div class="modal">
-            <div style="display:flex; justify-content:space-between; margin-bottom:20px">
-                <h3 id="modal-title">New Item</h3>
-                <button class="btn-ghost" onclick="closeModal()"><i class="ph ph-x"></i></button>
-            </div>
-            <input type="text" id="m-title" placeholder="Title">
-            <textarea id="m-notes" rows="3" placeholder="Notes..."></textarea>
-            
-            <div style="display:flex; gap:12px; margin-bottom:12px">
-                <div id="drop-zone" onclick="document.getElementById('file-in').click()" style="flex:1; border:2px dashed var(--border); border-radius:12px; padding:15px; text-align:center; cursor:pointer">
-                    <i class="ph ph-camera"></i> <span id="img-status">Add Photo</span>
-                    <input type="file" id="file-in" hidden accept="image/*" onchange="processImage(this)">
-                </div>
-                <button class="btn btn-ghost" style="width:100px" onclick="openDraw()"><i class="ph ph-pencil"></i> Draw</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                <h3 style="margin:0" data-i18n="modal_new">New Entry</h3>
+                <button class="btn btn-ghost" style="width:auto; padding:5px" onclick="closeModal('modal-entry')"><i class="ph ph-x"></i></button>
             </div>
 
-            <div id="grp-task"><input type="date" id="m-date"></div>
-            <div id="grp-order" style="display:none"><input type="number" id="m-price" placeholder="Price"></div>
+            <input type="text" id="m-title" data-i18n-placeholder="placeholder_title" placeholder="Title">
+            <textarea id="m-notes" rows="3" data-i18n-placeholder="placeholder_notes" placeholder="Notes..."></textarea>
+            
+            <input type="date" id="m-date" style="font-weight:600">
+            
+            <div id="grp-order" style="display:none"><input type="number" id="m-price" placeholder="Price ($)"></div>
             <div id="grp-target" style="display:none"><input type="number" id="m-goal" placeholder="Target Goal"></div>
 
-            <button class="btn btn-primary" onclick="saveItem()">Save Item</button>
+            <div style="display:flex; gap:12px; margin-bottom:15px">
+                <div id="drop-zone" onclick="document.getElementById('file-in').click()" style="flex:1; border:2px dashed var(--border); border-radius:12px; padding:15px; text-align:center; cursor:pointer; color:var(--text-muted)">
+                    <i class="ph ph-camera" style="font-size:1.5rem"></i><br>
+                    <span id="img-status" data-i18n="add_photo" style="font-size:0.8rem">Add Photo</span>
+                    <input type="file" id="file-in" hidden accept="image/*" onchange="processImage(this)">
+                </div>
+                <button class="btn btn-ghost" style="width:100px; flex-direction:column; gap:4px" onclick="openDraw()">
+                    <i class="ph ph-pencil" style="font-size:1.5rem"></i> 
+                    <span data-i18n="draw" style="font-size:0.8rem">Draw</span>
+                </button>
+            </div>
+
+            <button class="btn btn-primary" onclick="saveItem()" data-i18n="btn_save">Save Item</button>
         </div>
     </div>
 
     <div class="modal-overlay" id="modal-tools">
-        <div class="modal" style="max-width: 400px; padding: 16px;">
-            <div style="display:flex; gap:8px; margin-bottom:20px; background:var(--bg-input); padding:6px; border-radius:14px">
-                <button class="btn" id="tab-calc" onclick="switchTool('calc')" style="flex:1; margin:0">Calculator</button>
-                <button class="btn btn-ghost" id="tab-conv" onclick="switchTool('conv')" style="flex:1; margin:0">Converter</button>
+        <div class="modal">
+            <div style="display:flex; gap:8px; margin-bottom:15px; background:var(--bg-input); padding:4px; border-radius:14px">
+                <button class="btn btn-primary" id="tab-calc" onclick="switchTool('calc')" data-i18n="tab_calc" style="flex:1">Calculator</button>
+                <button class="btn btn-ghost" id="tab-conv" onclick="switchTool('conv')" data-i18n="tab_conv" style="flex:1">Converter</button>
             </div>
-
+            
             <div id="view-calc">
                 <div class="calc-container">
                     <div class="calc-screen">
@@ -327,35 +321,35 @@
                         <div id="c-disp">0</div>
                     </div>
                     <div class="calc-grid">
-                        <button class="calc-btn danger" onclick="cClear()">AC</button>
+                        <button class="calc-btn fn" style="color:var(--danger)" onclick="cClear()">AC</button>
                         <button class="calc-btn fn" onclick="cDel()"><i class="ph ph-backspace"></i></button>
                         <button class="calc-btn fn" onclick="cAdd('%')">%</button>
                         <button class="calc-btn op" onclick="cAdd('/')">÷</button>
-                        
+
                         <button class="calc-btn" onclick="cAdd('7')">7</button>
                         <button class="calc-btn" onclick="cAdd('8')">8</button>
                         <button class="calc-btn" onclick="cAdd('9')">9</button>
                         <button class="calc-btn op" onclick="cAdd('*')">×</button>
-                        
+
                         <button class="calc-btn" onclick="cAdd('4')">4</button>
                         <button class="calc-btn" onclick="cAdd('5')">5</button>
                         <button class="calc-btn" onclick="cAdd('6')">6</button>
                         <button class="calc-btn op" onclick="cAdd('-')">−</button>
-                        
+
                         <button class="calc-btn" onclick="cAdd('1')">1</button>
                         <button class="calc-btn" onclick="cAdd('2')">2</button>
                         <button class="calc-btn" onclick="cAdd('3')">3</button>
                         <button class="calc-btn op" onclick="cAdd('+')">+</button>
-                        
-                        <button class="calc-btn" onclick="cAdd('0')" style="grid-column: span 2; aspect-ratio: auto; border-radius: 16px">0</button>
+
+                        <button class="calc-btn" onclick="cAdd('0')" style="grid-column: span 2; aspect-ratio:auto">0</button>
                         <button class="calc-btn" onclick="cAdd('.')">.</button>
                         <button class="calc-btn eq" onclick="cCalc()">=</button>
                     </div>
                 </div>
             </div>
 
-            <div id="view-conv" style="display:none">
-                <select id="cv-type" onchange="initConv()" style="font-weight:700; background:var(--bg-surface)">
+            <div id="view-conv" style="display:none;">
+                <select id="cv-type" onchange="initConv()" style="font-weight:700; background:var(--bg-surface); margin-bottom:20px">
                     <option value="len">📏 Length</option>
                     <option value="wgt">⚖️ Weight</option>
                     <option value="vol">🧪 Volume</option>
@@ -363,7 +357,7 @@
                 </select>
 
                 <div class="conv-card">
-                    <label class="conv-label">From</label>
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase">From</label>
                     <div class="conv-row">
                         <input type="number" id="cv-in" class="conv-input" value="1" oninput="doConv()">
                         <select id="cv-u1" class="conv-select" onchange="doConv()"></select>
@@ -375,136 +369,234 @@
                 </div>
 
                 <div class="conv-card" style="border-color: var(--primary)">
-                    <label class="conv-label" style="color:var(--primary)">To</label>
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--primary); text-transform:uppercase">To</label>
                     <div class="conv-row">
                         <div id="cv-out" class="conv-input" style="flex:1">0</div>
                         <select id="cv-u2" class="conv-select" onchange="doConv()"></select>
                     </div>
                 </div>
             </div>
-
-            <button class="btn btn-ghost" style="margin-top:16px" onclick="closeTools()">Close</button>
+            
+            <button class="btn btn-ghost" style="margin-top:15px" onclick="closeModal('modal-tools')" data-i18n="close">Close</button>
         </div>
     </div>
 
     <div class="modal-overlay" id="modal-settings">
         <div class="modal">
-            <h3>Settings</h3>
-            <button class="btn btn-ghost" onclick="toggleTheme()"><i class="ph ph-moon"></i> Toggle Theme</button>
-            <button class="btn btn-ghost" onclick="backupData()"><i class="ph ph-download"></i> Backup Data</button>
-            <button class="btn btn-ghost" style="margin-top:10px" onclick="closeSettings()">Close</button>
+            <h3 data-i18n="nav_settings">Settings</h3>
+            <button class="btn btn-ghost" onclick="toggleTheme()"><i class="ph ph-moon"></i> <span data-i18n="toggle_theme">Toggle Theme</span></button>
+            <button class="btn btn-ghost" onclick="toggleLanguage()"><i class="ph ph-translate"></i> <span id="lang-label">English / Malay</span></button>
+            <button class="btn btn-ghost" onclick="backupData()"><i class="ph ph-download"></i> <span data-i18n="backup">Backup Data</span></button>
+            <button class="btn btn-primary" style="margin-top:15px" onclick="closeModal('modal-settings')" data-i18n="close">Close</button>
+        </div>
+    </div>
+
+    <div class="draw-overlay" id="draw-overlay">
+        <div class="draw-panel">
+            <div class="draw-header">
+                <button class="btn btn-ghost" style="width:auto; color:var(--text-main)" onclick="closeDraw()" data-i18n="cancel">Cancel</button>
+                <b data-i18n="sketch">Sketch</b>
+                <button class="btn btn-primary" style="width:auto" onclick="saveDraw()" data-i18n="btn_save">Save</button>
+            </div>
+            <canvas id="draw-canvas"></canvas>
         </div>
     </div>
 
     <script>
+        // --- STATE MANAGEMENT ---
         let items = JSON.parse(localStorage.getItem('smartops_data')) || [];
         let mode = 'task';
         let imgBuffer = null;
         let isDark = localStorage.getItem('smartops_theme') !== 'light';
+        let currentLang = localStorage.getItem('smartops_lang') || 'en';
+        let currentCalDate = new Date();
 
-        // --- CORE APP LOGIC ---
-        function applyTheme() {
-            document.body.className = isDark ? '' : 'light-mode';
-            localStorage.setItem('smartops_theme', isDark ? 'dark' : 'light');
-        }
+        // --- I18N DICTIONARY ---
+        const i18n = {
+            en: {
+                nav_tasks: "Tasks", nav_orders: "Orders", nav_targets: "Targets", nav_tools: "Tools", nav_settings: "Settings",
+                modal_new: "New Entry", placeholder_title: "Title", placeholder_notes: "Notes...", add_photo: "Add Photo",
+                draw: "Draw", btn_save: "Save Item", toggle_theme: "Toggle Theme", backup: "Backup Data",
+                close: "Close", tab_calc: "Calculator", tab_conv: "Converter", cancel: "Cancel", sketch: "Sketch Note",
+                search: "Search...", delete: "Delete"
+            },
+            ms: {
+                nav_tasks: "Tugasan", nav_orders: "Pesanan", nav_targets: "Sasaran", nav_tools: "Alatan", nav_settings: "Tetapan",
+                modal_new: "Rekod Baru", placeholder_title: "Tajuk", placeholder_notes: "Nota...", add_photo: "Tambah Foto",
+                draw: "Lukis", btn_save: "Simpan Item", toggle_theme: "Tukar Tema", backup: "Simpan Data",
+                close: "Tutup", tab_calc: "Kalkulator", tab_conv: "Penukar Unit", cancel: "Batal", sketch: "Nota Lakaran",
+                search: "Cari...", delete: "Padam"
+            }
+        };
+
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            applyTheme();
+            setLanguage(currentLang);
+            setMode('task'); // This triggers render()
+            renderCal();
+        };
+
+        // --- THEME & LANG ---
         function toggleTheme() { isDark = !isDark; applyTheme(); }
+        function applyTheme() { 
+            document.body.className = isDark ? '' : 'light-mode'; 
+            localStorage.setItem('smartops_theme', isDark ? 'dark' : 'light'); 
+        }
 
+        function toggleLanguage() { setLanguage(currentLang === 'en' ? 'ms' : 'en'); }
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('smartops_lang', lang);
+            document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = i18n[lang][el.getAttribute('data-i18n')]);
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => el.placeholder = i18n[lang][el.getAttribute('data-i18n-placeholder')]);
+            document.getElementById('lang-label').innerText = lang === 'en' ? "English / Malay" : "Malay / English";
+            document.getElementById('inp-search').placeholder = i18n[lang].search;
+            updateTitle();
+        }
+
+        // --- CORE NAVIGATION & CRUD ---
         function setMode(m) {
             mode = m;
-            document.querySelectorAll('.mob-item, .nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('page-title').innerText = m.charAt(0).toUpperCase() + m.slice(1) + 's';
-            ['grp-task','grp-order','grp-target'].forEach(id => document.getElementById(id).style.display = 'none');
-            document.getElementById(`grp-${m}`).style.display = 'block';
+            document.querySelectorAll('.mob-item, .nav-item').forEach(el => {
+                el.classList.remove('active');
+                if(el.getAttribute('onclick')?.includes(`'${m}'`)) el.classList.add('active');
+            });
+
+            // Toggle input fields based on mode
+            ['grp-order', 'grp-target'].forEach(id => document.getElementById(id).style.display = 'none');
+            if(m === 'order') document.getElementById('grp-order').style.display = 'block';
+            if(m === 'target') document.getElementById('grp-target').style.display = 'block';
+
+            updateTitle();
             render();
+        }
+
+        function updateTitle() {
+            const titles = {
+                en: { task: "My Tasks", order: "My Orders", target: "My Targets" },
+                ms: { task: "Tugasan Saya", order: "Pesanan Saya", target: "Sasaran Saya" }
+            };
+            document.getElementById('page-title').innerText = titles[currentLang][mode];
         }
 
         function render() {
             const container = document.getElementById('list-container');
+            const search = document.getElementById('inp-search').value.toLowerCase();
             container.innerHTML = '';
-            items.filter(i => i.type === mode).forEach(item => {
-                const card = document.createElement('div');
-                card.className = `card ${item.done ? 'done' : ''}`;
-                card.innerHTML = `
+            
+            // Filter and Sort by Date (Empty dates last)
+            const filteredItems = items.filter(i => i.type === mode && i.title.toLowerCase().includes(search));
+            filteredItems.sort((a, b) => {
+                if(!a.date) return 1; if(!b.date) return -1;
+                return new Date(a.date) - new Date(b.date);
+            });
+
+            filteredItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `card ${item.done ? 'done' : ''}`;
+                
+                let badge = '';
+                if(item.price) badge += `<div class="badge bg-price">$${item.price}</div>`;
+                if(item.goal) badge += `<div class="badge bg-target">Target: ${item.goal}</div>`;
+                if(item.date) badge += `<div class="badge bg-date"><i class="ph ph-calendar-blank"></i> ${item.date}</div>`;
+
+                div.innerHTML = `
                     ${item.img ? `<img src="${item.img}" class="thumb">` : ''}
                     <div class="card-content">
                         <div class="card-title">${item.title}</div>
-                        <div class="card-meta">${item.notes || ''}</div>
+                        <div class="card-meta">
+                            ${item.notes ? `<span>${item.notes}</span>` : ''}
+                            <div style="width:100%; display:flex; gap:6px; flex-wrap:wrap; margin-top:4px">${badge}</div>
+                        </div>
                     </div>
-                    <button class="btn-del" onclick="deleteItem('${item.id}')"><i class="ph ph-trash"></i></button>
+                    <i class="ph ph-trash" style="cursor:pointer; color:var(--danger); font-size:1.2rem; align-self:center" onclick="event.stopPropagation(); deleteItem('${item.id}')"></i>
                 `;
-                card.onclick = () => { item.done = !item.done; save(); render(); };
-                container.appendChild(card);
+                div.onclick = () => { item.done = !item.done; save(); render(); };
+                container.appendChild(div);
             });
         }
 
         function saveItem() {
             const title = document.getElementById('m-title').value;
             if(!title) return;
-            items.push({
+            
+            const newItem = {
                 id: Date.now().toString(),
                 type: mode,
                 title,
                 notes: document.getElementById('m-notes').value,
+                date: document.getElementById('m-date').value,
                 img: imgBuffer,
-                done: false
-            });
-            save(); closeModal(); render();
+                done: false,
+                price: document.getElementById('m-price').value,
+                goal: document.getElementById('m-goal').value
+            };
+
+            items.push(newItem);
+            save();
+            
+            // Reset fields
+            document.getElementById('m-title').value = '';
+            document.getElementById('m-notes').value = '';
+            document.getElementById('m-date').value = '';
+            document.getElementById('m-price').value = '';
+            document.getElementById('m-goal').value = '';
+            document.getElementById('img-status').innerText = i18n[currentLang].add_photo;
+            imgBuffer = null;
+            
+            closeModal('modal-entry');
+            render();
         }
 
         function deleteItem(id) {
-            items = items.filter(i => i.id !== id);
-            save(); render();
+            if(confirm("Delete this item?")) {
+                items = items.filter(i => i.id !== id);
+                save();
+                render();
+            }
         }
 
-        function save() { localStorage.setItem('smartops_data', JSON.stringify(items)); }
-        function openModal() { document.getElementById('modal').style.display = 'flex'; document.getElementById('modal').classList.add('show'); }
-        function closeModal() { document.getElementById('modal').classList.remove('show'); setTimeout(()=>document.getElementById('modal').style.display='none', 200); }
+        function save() {
+            localStorage.setItem('smartops_data', JSON.stringify(items));
+        }
+
+        function backupData() {
+            const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'smartops_backup.json'; a.click();
+        }
+
+        // --- UI UTILITIES ---
+        function openModal() { document.getElementById('modal-entry').classList.add('show'); }
+        function openToolModal() { document.getElementById('modal-tools').classList.add('show'); switchTool('calc'); }
         function openSettingsModal() { document.getElementById('modal-settings').classList.add('show'); }
-        function closeSettings() { document.getElementById('modal-settings').classList.remove('show'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
         // --- CALCULATOR LOGIC ---
-        let cExp = "";
-        let cPrev = "";
-
-        function cAdd(v) {
-            if (cExp === "0" && !isNaN(v)) cExp = v;
-            else cExp += v;
-            updateDisp();
+        let cExp = "", cPrev = "";
+        function switchTool(t) {
+            document.getElementById('view-calc').style.display = t === 'calc' ? 'block' : 'none';
+            document.getElementById('view-conv').style.display = t === 'conv' ? 'block' : 'none';
+            document.getElementById('tab-calc').className = t === 'calc' ? 'btn btn-primary' : 'btn btn-ghost';
+            document.getElementById('tab-conv').className = t === 'conv' ? 'btn btn-primary' : 'btn btn-ghost';
+            if(t === 'conv') initConv();
         }
-
-        function cDel() {
-            cExp = cExp.toString().slice(0, -1);
-            if (cExp === "") cExp = "0";
-            updateDisp();
-        }
-
-        function cClear() {
-            cExp = "0";
-            cPrev = "";
-            updateDisp();
-        }
-
+        function cAdd(v) { if (cExp === "0" && !isNaN(v)) cExp = v; else cExp += v; updateC(); }
+        function cDel() { cExp = cExp.toString().slice(0, -1); if (cExp === "") cExp = "0"; updateC(); }
+        function cClear() { cExp = "0"; cPrev = ""; updateC(); }
         function cCalc() {
             try {
                 cPrev = cExp + " =";
-                let formula = cExp.replace(/×/g, '*').replace(/÷/g, '/');
-                // Handle percentages: 50% becomes 50/100
-                formula = formula.replace(/(\d+)%/g, '($1/100)');
+                let formula = cExp.replace(/×/g, '*').replace(/÷/g, '/').replace(/(\d+)%/g, '($1/100)');
                 let res = eval(formula);
-                cExp = Number.isInteger(res) ? res.toString() : parseFloat(res.toFixed(8)).toString();
-            } catch {
-                cExp = "Error";
-            }
-            updateDisp();
+                cExp = Number.isInteger(res) ? res.toString() : parseFloat(res.toFixed(6)).toString();
+            } catch { cExp = "Error"; }
+            updateC();
         }
-
-        function updateDisp() {
-            document.getElementById('c-disp').innerText = cExp || "0";
-            document.getElementById('c-history').innerText = cPrev;
-        }
+        function updateC() { document.getElementById('c-disp').innerText = cExp || "0"; document.getElementById('c-history').innerText = cPrev; }
 
         // --- CONVERTER LOGIC ---
-        const units = {
+        const convUnits = {
             len: { m:1, km:1000, cm:0.01, mm:0.001, ft:0.3048, in:0.0254, mi:1609.34 },
             wgt: { kg:1, g:0.001, lb:0.453592, oz:0.0283495 },
             vol: { l:1, ml:0.001, gal:3.78541, qt:0.946353 },
@@ -515,7 +607,7 @@
             const type = document.getElementById('cv-type').value;
             const u1 = document.getElementById('cv-u1'), u2 = document.getElementById('cv-u2');
             u1.innerHTML = ''; u2.innerHTML = '';
-            Object.keys(units[type]).forEach(k => {
+            Object.keys(convUnits[type]).forEach(k => {
                 u1.innerHTML += `<option value="${k}">${k.toUpperCase()}</option>`;
                 u2.innerHTML += `<option value="${k}">${k.toUpperCase()}</option>`;
             });
@@ -531,14 +623,15 @@
             let res = 0;
 
             if(type === 'temp') {
-                let c = val;
+                let c = val; // normalize to C
                 if(from === 'f') c = (val - 32) * 5/9;
                 if(from === 'k') c = val - 273.15;
+                // convert from C
                 if(to === 'c') res = c;
                 if(to === 'f') res = (c * 9/5) + 32;
                 if(to === 'k') res = c + 273.15;
             } else {
-                res = (val * units[type][from]) / units[type][to];
+                res = (val * convUnits[type][from]) / convUnits[type][to];
             }
             document.getElementById('cv-out').innerText = parseFloat(res.toFixed(4));
         }
@@ -549,32 +642,89 @@
             doConv();
         }
 
-        // --- TOOL MODAL ---
-        function openToolModal(t) {
-            document.getElementById('modal-tools').classList.add('show');
-            switchTool(t);
-        }
-        function closeTools() { document.getElementById('modal-tools').classList.remove('show'); }
-        function switchTool(t) {
-            document.getElementById('view-calc').style.display = t === 'calc' ? 'block' : 'none';
-            document.getElementById('view-conv').style.display = t === 'conv' ? 'block' : 'none';
-            document.getElementById('tab-calc').className = t === 'calc' ? 'btn' : 'btn-ghost';
-            document.getElementById('tab-conv').className = t === 'conv' ? 'btn' : 'btn-ghost';
-            if(t === 'conv') initConv();
-        }
-
-        // --- CALENDAR ---
+        // --- CALENDAR LOGIC ---
+        function changeMonth(dir) { currentCalDate.setMonth(currentCalDate.getMonth() + dir); renderCal(); }
         function renderCal() {
-            const now = new Date();
-            document.getElementById('cal-month').innerText = now.toLocaleString('default', {month:'long', year:'numeric'});
+            document.getElementById('cal-month').innerText = currentCalDate.toLocaleString(currentLang === 'en' ? 'en-US' : 'ms-MY', {month:'long', year:'numeric'});
             const grid = document.getElementById('cal-days'); grid.innerHTML = '';
-            for(let i=1; i<=31; i++) {
-                grid.innerHTML += `<div class="cal-day ${i === now.getDate() ? 'active' : ''}">${i}</div>`;
+            const firstDay = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth(), 1).getDay();
+            const daysInMonth = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth()+1, 0).getDate();
+            const now = new Date();
+            
+            for(let i=0; i<firstDay; i++) grid.innerHTML += `<div></div>`;
+            for(let i=1; i<=daysInMonth; i++) {
+                const isToday = i === now.getDate() && currentCalDate.getMonth() === now.getMonth() && currentCalDate.getFullYear() === now.getFullYear();
+                grid.innerHTML += `<div class="cal-day ${isToday ? 'active' : ''}">${i}</div>`;
             }
         }
 
-        // Init
-        window.onload = () => { applyTheme(); render(); renderCal(); };
+        // --- DRAWING & PHOTOS (COMPRESSED) ---
+        function processImage(input) {
+            if (input.files?.[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        // Max dimension limit (800px) and JPEG compression
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const MAX_SIZE = 800;
+                        let width = img.width, height = img.height;
+                        
+                        if (width > height) {
+                            if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+                        } else {
+                            if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+                        }
+                        
+                        canvas.width = width; canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        imgBuffer = canvas.toDataURL('image/jpeg', 0.7); // Compress to 0.7 quality
+                        document.getElementById('img-status').innerText = "Photo Attached (Compressed)";
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        let canvas, ctx, drawing = false;
+        function openDraw() {
+            document.getElementById('draw-overlay').classList.add('show');
+            canvas = document.getElementById('draw-canvas'); 
+            ctx = canvas.getContext('2d');
+            
+            // Resize canvas to fit
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height - 60; // minus header
+            
+            // Set styles
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height); // white bg
+            ctx.strokeStyle = '#000'; 
+            ctx.lineWidth = 4; 
+            ctx.lineCap = 'round';
+            
+            const getPos = (e) => {
+                const r = canvas.getBoundingClientRect();
+                const cx = e.touches ? e.touches[0].clientX : e.clientX;
+                const cy = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: cx - r.left, y: cy - r.top };
+            };
+            
+            const start = (e) => { drawing=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x, p.y); };
+            const move = (e) => { if(drawing) { e.preventDefault(); const p=getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); } };
+            const end = () => drawing=false;
+
+            canvas.onmousedown = start; canvas.onmousemove = move; window.onmouseup = end;
+            canvas.ontouchstart = start; canvas.ontouchmove = move; window.ontouchend = end;
+        }
+        function closeDraw() { document.getElementById('draw-overlay').classList.remove('show'); }
+        function saveDraw() { imgBuffer = canvas.toDataURL(); document.getElementById('img-status').innerText = "Sketch Attached"; closeDraw(); }
+
     </script>
 </body>
 </html>
