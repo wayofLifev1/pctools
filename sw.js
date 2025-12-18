@@ -1,4 +1,7 @@
-const CACHE_NAME = 'smartops-v3-static';
+// --- 1. SETTINGS ---
+// INCREMENT THIS VERSION (v4 -> v5) WHENEVER YOU UPDATE YOUR APP
+const CACHE_NAME = 'smartops-v4-static'; 
+
 const ASSETS = [
     './',
     './index.html',
@@ -8,25 +11,63 @@ const ASSETS = [
     './task-widget-ui.json'
 ];
 
-// 1. INSTALL: Cache files
+// --- 2. INSTALL EVENT (Cache files immediately) ---
 self.addEventListener('install', (e) => {
-    e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
-    self.skipWaiting();
-});
-
-// 2. ACTIVATE: Clean old caches
-self.addEventListener('activate', (e) => {
-    e.waitUntil(clients.claim());
-});
-
-// 3. FETCH: Offline Support
-self.addEventListener('fetch', (e) => {
-    e.respondWith(
-        caches.match(e.request).then(res => res || fetch(e.request))
+    // Force this new service worker to become active immediately
+    self.skipWaiting(); 
+    
+    e.waitUntil(
+        caches.open(CACHE_NAME).then(cache => {
+            console.log('Caching assets...');
+            return cache.addAll(ASSETS);
+        })
     );
 });
 
-// --- WIDGET LOGIC (THE IMPORTANT PART) ---
+// --- 3. ACTIVATE EVENT (The "Auto Clear" Logic) ---
+self.addEventListener('activate', (e) => {
+    // This forces the new Service Worker to take control of open pages
+    e.waitUntil(
+        Promise.all([
+            clients.claim(),
+            // Check all caches and delete any that don't match the current CACHE_NAME
+            caches.keys().then(cacheNames => {
+                return Promise.all(
+                    cacheNames.map(cache => {
+                        if (cache !== CACHE_NAME) {
+                            console.log('Deleting old cache:', cache);
+                            return caches.delete(cache);
+                        }
+                    })
+                );
+            })
+        ])
+    );
+});
+
+// --- 4. FETCH EVENT (Network First Strategy) ---
+// I changed this to "Network First". It tries to get the fresh version from the internet first.
+// If there is no internet, ONLY THEN does it use the cache. This prevents getting stuck on old versions.
+self.addEventListener('fetch', (e) => {
+    e.respondWith(
+        fetch(e.request)
+            .then(res => {
+                // If we get a valid response from the network, update the cache
+                const resClone = res.clone();
+                caches.open(CACHE_NAME).then(cache => {
+                    cache.put(e.request, resClone);
+                });
+                return res;
+            })
+            .catch(() => {
+                // If network fails, return the cached version
+                return caches.match(e.request);
+            })
+    );
+});
+
+
+// --- WIDGET LOGIC (Kept exactly as you had it) ---
 
 // A. Handle Widget Installation
 self.addEventListener('widgetinstall', (event) => {
@@ -43,7 +84,6 @@ self.addEventListener('widgetresume', (event) => {
 // C. Listen for updates from the App (When you click Save)
 self.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'RELOAD_WIDGET') {
-        // Find the widget by its tag 'task-list' and update it
         if (self.widgets) {
             self.widgets.getByTag('task-list').then(widgetList => {
                 if (widgetList && widgetList.length > 0) {
@@ -57,20 +97,15 @@ self.addEventListener('message', (event) => {
 // D. The Function that Draws the Widget
 async function updateWidget(widgetInstance) {
     try {
-        // 1. Get the Template
         const template = await fetch('./task-widget-ui.json').then(res => res.json());
-        
-        // 2. Get Data from IndexedDB (Shared with App)
         const tasks = await getTasksFromDB();
         
-        // 3. Format Data for the Widget
         const data = {
             task1: tasks[0] ? tasks[0].title : "No pending tasks",
             task2: tasks[1] ? tasks[1].title : "",
             task3: tasks[2] ? tasks[2].title : ""
         };
 
-        // 4. Send to Widget
         await self.widgets.updateByInstanceId(widgetInstance.instanceId, {
             template: JSON.stringify(template),
             data: JSON.stringify(data)
@@ -81,14 +116,13 @@ async function updateWidget(widgetInstance) {
     }
 }
 
-// E. Database Helper (Reads what you saved in Index.html)
+// E. Database Helper
 function getTasksFromDB() {
     return new Promise((resolve) => {
         const req = indexedDB.open('SmartOpsDB', 1);
         
         req.onsuccess = (e) => {
             const db = e.target.result;
-            // Handle empty DB case
             if (!db.objectStoreNames.contains('items')) {
                 resolve([]); 
                 return;
@@ -99,12 +133,10 @@ function getTasksFromDB() {
             const getAll = store.getAll();
             
             getAll.onsuccess = () => {
-                // Filter for tasks that are NOT done
                 const pending = getAll.result.filter(i => i.type === 'task' && !i.done);
-                resolve(pending.slice(0, 3)); // Return top 3
+                resolve(pending.slice(0, 3)); 
             };
         };
-        
         req.onerror = () => resolve([]);
     });
 }
