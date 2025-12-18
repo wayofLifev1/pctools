@@ -724,7 +724,16 @@
         }
         function closeDraw() { document.getElementById('draw-overlay').classList.remove('show'); }
         function saveDraw() { imgBuffer = canvas.toDataURL(); document.getElementById('img-status').innerText = "Sketch Attached"; closeDraw(); }
-
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker registered!', reg))
+                .catch(err => console.log('Service Worker failed:', err));
+        });
+    }
+</script>
+    
     </script>
 </body>
 </html>
