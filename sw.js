@@ -1,5 +1,5 @@
-const CACHE_NAME = 'smartops-v1';
-const ASSETS_TO_CACHE = [
+const CACHE_NAME = 'smartops-v3-static';
+const ASSETS = [
     './',
     './index.html',
     './manifest.json',
@@ -8,101 +8,103 @@ const ASSETS_TO_CACHE = [
     './task-widget-ui.json'
 ];
 
-const EXTERNAL_ASSETS = [
-    'https://unpkg.com/@phosphor-icons/web',
-    'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap'
-];
-
-self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            cache.addAll(EXTERNAL_ASSETS).catch(err => console.log('External asset skipped:', err));
-            return cache.addAll(ASSETS_TO_CACHE);
-        })
-    );
+// 1. INSTALL: Cache files
+self.addEventListener('install', (e) => {
+    e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
     self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys().then((keyList) => {
-            return Promise.all(keyList.map((key) => {
-                if (key !== CACHE_NAME) return caches.delete(key);
-            }));
-        })
-    );
-    return self.clients.claim();
+// 2. ACTIVATE: Clean old caches
+self.addEventListener('activate', (e) => {
+    e.waitUntil(clients.claim());
 });
 
-// Fetch logic for offline support
-self.addEventListener('fetch', (event) => {
-    const url = new URL(event.request.url);
-    if (event.request.mode === 'navigate' || url.pathname.endsWith('index.html')) {
-        event.respondWith(
-            fetch(event.request).catch(() => caches.match('./index.html') || caches.match('./'))
-        );
-        return;
-    }
-    event.respondWith(
-        caches.match(event.request).then((cachedResponse) => {
-            return cachedResponse || fetch(event.request).then((networkResponse) => {
-                if (!networkResponse || networkResponse.status !== 200) return networkResponse;
-                const responseToCache = networkResponse.clone();
-                caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
-                return networkResponse;
-            });
-        })
+// 3. FETCH: Offline Support
+self.addEventListener('fetch', (e) => {
+    e.respondWith(
+        caches.match(e.request).then(res => res || fetch(e.request))
     );
 });
 
-// --- WIDGET LOGIC ---
-self.addEventListener('widgetinstall', event => event.waitUntil(renderWidget(event.widget)));
-self.addEventListener('widgetresume', event => event.waitUntil(renderWidget(event.widget)));
+// --- WIDGET LOGIC (THE IMPORTANT PART) ---
 
+// A. Handle Widget Installation
+self.addEventListener('widgetinstall', (event) => {
+    console.log('Installing widget...', event.widget);
+    event.waitUntil(updateWidget(event.widget));
+});
+
+// B. Handle Widget Updates (Periodic or User triggered)
+self.addEventListener('widgetresume', (event) => {
+    console.log('Resuming widget...', event.widget);
+    event.waitUntil(updateWidget(event.widget));
+});
+
+// C. Listen for updates from the App (When you click Save)
 self.addEventListener('message', (event) => {
-    if (event.data.type === 'RELOAD_WIDGET') {
-        event.waitUntil(
-            self.widgets.getByTag('task-list').then((widget) => {
-                if (widget) renderWidget(widget);
-            })
-        );
+    if (event.data && event.data.type === 'RELOAD_WIDGET') {
+        // Find the widget by its tag 'task-list' and update it
+        if (self.widgets) {
+            self.widgets.getByTag('task-list').then(widgetList => {
+                if (widgetList && widgetList.length > 0) {
+                    updateWidget(widgetList[0]);
+                }
+            });
+        }
     }
 });
 
-async function renderWidget(widget) {
+// D. The Function that Draws the Widget
+async function updateWidget(widgetInstance) {
     try {
+        // 1. Get the Template
         const template = await fetch('./task-widget-ui.json').then(res => res.json());
-        const tasks = await getTasksFromDB(); 
         
+        // 2. Get Data from IndexedDB (Shared with App)
+        const tasks = await getTasksFromDB();
+        
+        // 3. Format Data for the Widget
         const data = {
-            task1: tasks[0]?.title || "No tasks!",
-            task2: tasks[1]?.title || "-",
-            task3: tasks[2]?.title || "-"
+            task1: tasks[0] ? tasks[0].title : "No pending tasks",
+            task2: tasks[1] ? tasks[1].title : "",
+            task3: tasks[2] ? tasks[2].title : ""
         };
 
-        await self.widgets.updateByTag('task-list', {
+        // 4. Send to Widget
+        await self.widgets.updateByInstanceId(widgetInstance.instanceId, {
             template: JSON.stringify(template),
             data: JSON.stringify(data)
         });
-    } catch (error) {
-        console.error("Widget render failed:", error);
+        
+    } catch (err) {
+        console.error('Widget update failed:', err);
     }
 }
 
-async function getTasksFromDB() {
+// E. Database Helper (Reads what you saved in Index.html)
+function getTasksFromDB() {
     return new Promise((resolve) => {
-        const request = indexedDB.open('SmartOpsDB', 1);
-        request.onsuccess = (e) => {
+        const req = indexedDB.open('SmartOpsDB', 1);
+        
+        req.onsuccess = (e) => {
             const db = e.target.result;
-            if (!db.objectStoreNames.contains('items')) return resolve([]);
+            // Handle empty DB case
+            if (!db.objectStoreNames.contains('items')) {
+                resolve([]); 
+                return;
+            }
+            
             const tx = db.transaction('items', 'readonly');
             const store = tx.objectStore('items');
             const getAll = store.getAll();
+            
             getAll.onsuccess = () => {
-                const pending = getAll.result.filter(i => !i.done && i.type === 'task');
-                resolve(pending.slice(0, 3));
+                // Filter for tasks that are NOT done
+                const pending = getAll.result.filter(i => i.type === 'task' && !i.done);
+                resolve(pending.slice(0, 3)); // Return top 3
             };
         };
-        request.onerror = () => resolve([]);
+        
+        req.onerror = () => resolve([]);
     });
 }
