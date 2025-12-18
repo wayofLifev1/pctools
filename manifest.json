@@ -13,14 +13,31 @@
   ],
   "widgets": [
     {
-      "name": "Priority Tasks",
-      "description": "See your top 3 pending tasks.",
+      "name": "SmartOps Tasks",
+      "short_name": "Tasks",
+      "description": "View your top 3 pending tasks.",
       "tag": "task-list",
-      "template": "task-widget-ui",
-      "msAcTemplate": "task-widget-ui.json",
-      "data": "task-data",
+      "template": "task-widget-ui.json",
+      "ms_ac_template": "task-widget-ui.json",
+      "data": "task-widget-ui.json",
       "type": "application/json",
-      "update": 1800
+      "screenshots": [
+        {
+          "src": "icon-512.png",
+          "sizes": "512x512",
+          "type": "image/png",
+          "label": "Widget Preview"
+        }
+      ],
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ],
+      "auth": false,
+      "update": 3600
     }
   ]
 }
