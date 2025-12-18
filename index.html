@@ -8,7 +8,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="SmartOps">
-    <title>SmartOps Pro v3.1</title>
+    <title>SmartOps Pro v3.2 (Widget Ready)</title>
+    
+    <link rel="manifest" href="./manifest.json">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -435,6 +437,7 @@
             setLanguage(currentLang);
             setMode('task'); // This triggers render()
             renderCal();
+            updateWidgetDB(items); // Sync data to widget on load
         };
 
         // --- THEME & LANG ---
@@ -557,8 +560,40 @@
             }
         }
 
+        // --- UPDATED SAVE FUNCTION (Fixes Widget) ---
         function save() {
+            // 1. Save to LocalStorage (For this App)
             localStorage.setItem('smartops_data', JSON.stringify(items));
+            
+            // 2. Save to IndexedDB (For the Widget/SW)
+            updateWidgetDB(items);
+        }
+
+        function updateWidgetDB(data) {
+            if (!('indexedDB' in window)) return;
+            const request = indexedDB.open('SmartOpsDB', 1);
+            
+            request.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('items')) {
+                    db.createObjectStore('items', { keyPath: 'id' });
+                }
+            };
+
+            request.onsuccess = (e) => {
+                const db = e.target.result;
+                const tx = db.transaction('items', 'readwrite');
+                const store = tx.objectStore('items');
+                store.clear();
+                data.forEach(item => {
+                    store.put(JSON.parse(JSON.stringify(item)));
+                });
+                
+                // Notify Service Worker
+                if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({ type: 'RELOAD_WIDGET' });
+                }
+            };
         }
 
         function backupData() {
@@ -667,22 +702,15 @@
                     const img = new Image();
                     img.src = e.target.result;
                     img.onload = () => {
-                        // Max dimension limit (800px) and JPEG compression
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
                         const MAX_SIZE = 800;
                         let width = img.width, height = img.height;
-                        
-                        if (width > height) {
-                            if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
-                        } else {
-                            if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
-                        }
-                        
+                        if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } }
+                        else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
                         canvas.width = width; canvas.height = height;
                         ctx.drawImage(img, 0, 0, width, height);
-                        
-                        imgBuffer = canvas.toDataURL('image/jpeg', 0.7); // Compress to 0.7 quality
+                        imgBuffer = canvas.toDataURL('image/jpeg', 0.7); 
                         document.getElementById('img-status').innerText = "Photo Attached (Compressed)";
                     };
                 };
@@ -695,45 +723,35 @@
             document.getElementById('draw-overlay').classList.add('show');
             canvas = document.getElementById('draw-canvas'); 
             ctx = canvas.getContext('2d');
-            
-            // Resize canvas to fit
             const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height - 60; // minus header
-            
-            // Set styles
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, canvas.width, canvas.height); // white bg
-            ctx.strokeStyle = '#000'; 
-            ctx.lineWidth = 4; 
-            ctx.lineCap = 'round';
-            
+            canvas.width = rect.width; canvas.height = rect.height - 60; 
+            ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height); 
+            ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.lineCap = 'round';
             const getPos = (e) => {
                 const r = canvas.getBoundingClientRect();
                 const cx = e.touches ? e.touches[0].clientX : e.clientX;
                 const cy = e.touches ? e.touches[0].clientY : e.clientY;
                 return { x: cx - r.left, y: cy - r.top };
             };
-            
             const start = (e) => { drawing=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x, p.y); };
             const move = (e) => { if(drawing) { e.preventDefault(); const p=getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); } };
             const end = () => drawing=false;
-
             canvas.onmousedown = start; canvas.onmousemove = move; window.onmouseup = end;
             canvas.ontouchstart = start; canvas.ontouchmove = move; window.ontouchend = end;
         }
         function closeDraw() { document.getElementById('draw-overlay').classList.remove('show'); }
         function saveDraw() { imgBuffer = canvas.toDataURL(); document.getElementById('img-status').innerText = "Sketch Attached"; closeDraw(); }
-<script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('Service Worker registered!', reg))
-                .catch(err => console.log('Service Worker failed:', err));
-        });
-    }
-</script>
+
+    </script>
     
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registered!'))
+                    .catch(err => console.log('Service Worker failed:', err));
+            });
+        }
     </script>
 </body>
 </html>
