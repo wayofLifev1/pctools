@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0f172a">
     <meta name="description" content="SmartOps Pro - Enterprise Productivity System">
-    <title>SmartOps Pro v3.4 (Colors + Widget Ready)</title>
+    <title>SmartOps Pro v3.5 (Final Fix)</title>
     
     <link rel="manifest" href="./manifest.json">
     
@@ -32,10 +32,10 @@
             --danger: #ef4444;
             --warning: #f59e0b;
             
-            /* Dimensions & Effects */
+            /* Dimensions */
             --radius: 16px;
             --safe-bottom: env(safe-area-inset-bottom);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
         }
 
         body.light-mode {
@@ -56,7 +56,6 @@
             margin: 0; font-family: 'Inter', sans-serif;
             background-color: var(--bg-body); color: var(--text-main);
             height: 100vh; overflow: hidden; display: flex;
-            transition: background-color 0.3s ease;
         }
 
         /* --- LAYOUT --- */
@@ -177,27 +176,63 @@
         .btn-ghost { background: transparent; color: var(--text-muted); }
         .btn-ghost:hover { background: var(--bg-surface-2); color: var(--text-main); }
 
-        /* --- DRAWING UI IMPROVEMENTS --- */
+        /* --- FIXED DRAWING UI --- */
         .draw-overlay { 
-            position: fixed; inset: 0; pointer-events: none;
-            display: none; align-items: center; justify-content: center; z-index: 200; background: rgba(0,0,0,0.95); 
+            position: fixed; inset: 0; 
+            display: none; /* Hidden by default */
+            align-items: center; justify-content: center; 
+            z-index: 200; background: rgba(0,0,0,0.95); 
         }
-        .draw-overlay.show { display: flex; pointer-events: auto; }
-        .draw-panel { width: 95%; height: 90vh; background: #fff; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border); }
-        
+        .draw-overlay.show { display: flex; /* Flex handles centering */ }
+
+        .draw-panel { 
+            width: 95%; height: 85vh; 
+            background: #fff; border-radius: 20px; 
+            display: flex; flex-direction: column; /* Stack Toolbar on top of Canvas */
+            overflow: hidden; border: 1px solid var(--border); 
+        }
+
         .draw-toolbar {
-            padding: 10px; background: var(--bg-surface); border-bottom: 1px solid var(--border);
+            padding: 10px; background: var(--bg-surface); 
+            border-bottom: 1px solid var(--border);
             display: flex; gap: 10px; justify-content: space-between; align-items: center;
+            flex-shrink: 0; /* Prevents toolbar from shrinking */
+            z-index: 10;
         }
-        .color-picker { display: flex; gap: 8px; overflow-x: auto; padding: 4px; }
+
+        /* Scrollable Color Picker */
+        .color-picker { display: flex; gap: 12px; overflow-x: auto; padding: 4px; }
         .color-dot {
-            width: 32px; height: 32px; border-radius: 50%; border: 3px solid transparent; cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s;
+            width: 28px; height: 28px; border-radius: 50%; 
+            border: 2px solid var(--border); cursor: pointer; flex-shrink: 0;
+            transition: transform 0.2s;
         }
-        .color-dot:active { transform: scale(0.9); }
-        .color-dot.active { border-color: var(--text-main); transform: scale(1.1); }
-        
-        canvas#draw-canvas { flex: 1; background: #fff; touch-action: none; cursor: crosshair; }
+        .color-dot.active { transform: scale(1.2); border-color: var(--text-main); box-shadow: 0 0 0 2px var(--bg-body), 0 0 0 4px var(--primary); }
+
+        /* The Canvas fills the rest of the space */
+        .canvas-wrapper { flex: 1; position: relative; width: 100%; overflow: hidden; background: #fff; }
+        canvas#draw-canvas { 
+            display: block; width: 100%; height: 100%; 
+            touch-action: none; cursor: crosshair; 
+        }
+
+        /* --- TOOLS UI --- */
+        .calc-container { background: var(--bg-input); border-radius: 20px; padding: 16px; border: 1px solid var(--border); }
+        .calc-screen { text-align: right; min-height: 80px; display: flex; flex-direction: column; justify-content: flex-end; padding: 10px; margin-bottom: 10px; }
+        #c-history { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px; min-height: 1rem; }
+        #c-disp { font-size: 2rem; font-weight: 700; word-break: break-all; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .calc-btn { aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); font-weight: 600; cursor: pointer; font-size: 1.2rem; transition: 0.1s; }
+        .calc-btn:active { transform: scale(0.95); }
+        .calc-btn.op { background: rgba(99, 102, 241, 0.1); color: var(--primary); border-color: transparent; }
+        .calc-btn.eq { background: var(--primary-grad); color: white; border: none; }
+        .calc-btn.fn { background: var(--bg-surface-2); color: var(--text-muted); font-size: 1rem; }
+
+        .conv-card { background: var(--bg-input); border: 1px solid var(--border); padding: 16px; border-radius: 16px; margin-bottom: 12px; }
+        .conv-row { display: flex; align-items: center; gap: 12px; }
+        .conv-input { margin-bottom: 0 !important; font-size: 1.25rem !important; font-weight: 700 !important; border: none !important; background: transparent !important; padding: 0 !important; }
+        .conv-select { width: 110px !important; margin-bottom: 0 !important; padding: 8px !important; background: var(--bg-surface) !important; font-size: 0.85rem !important; font-weight: 600; }
+        .conv-swap { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; margin: -20px auto 10px auto; position: relative; z-index: 2; cursor: pointer; border: 4px solid var(--bg-surface); }
 
         @media (max-width: 950px) {
             .sidebar, .calendar-widget { display: none; }
@@ -205,23 +240,6 @@
             .dashboard-grid { grid-template-columns: 1fr; }
             .fab { bottom: calc(80px + var(--safe-bottom)); right: 20px; }
         }
-        
-        /* Tool styles omitted for brevity, same as original */
-        .calc-container { background: var(--bg-input); border-radius: 20px; padding: 16px; border: 1px solid var(--border); }
-        .calc-screen { text-align: right; min-height: 80px; display: flex; flex-direction: column; justify-content: flex-end; padding: 10px; margin-bottom: 10px; }
-        #c-history { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px; min-height: 1rem; }
-        #c-disp { font-size: 2rem; font-weight: 700; word-break: break-all; }
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .calc-btn { aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); font-weight: 600; cursor: pointer; font-size: 1.2rem; transition: 0.1s; }
-        .calc-btn.op { background: rgba(99, 102, 241, 0.1); color: var(--primary); border-color: transparent; }
-        .calc-btn.eq { background: var(--primary-grad); color: white; border: none; }
-        .calc-btn.fn { background: var(--bg-surface-2); color: var(--text-muted); font-size: 1rem; }
-        .conv-card { background: var(--bg-input); border: 1px solid var(--border); padding: 16px; border-radius: 16px; margin-bottom: 12px; }
-        .conv-row { display: flex; align-items: center; gap: 12px; }
-        .conv-input { margin-bottom: 0 !important; font-size: 1.25rem !important; font-weight: 700 !important; border: none !important; background: transparent !important; padding: 0 !important; }
-        .conv-select { width: 110px !important; margin-bottom: 0 !important; padding: 8px !important; background: var(--bg-surface) !important; font-size: 0.85rem !important; font-weight: 600; }
-        .conv-swap { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; margin: -20px auto 10px auto; position: relative; z-index: 2; cursor: pointer; border: 4px solid var(--bg-surface); }
-
     </style>
 </head>
 <body>
@@ -307,12 +325,33 @@
         </div>
     </div>
 
+    <div class="draw-overlay" id="draw-overlay">
+        <div class="draw-panel">
+            <div class="draw-toolbar">
+                <button class="btn btn-ghost" style="width:auto; color:var(--text-main)" onclick="closeDraw()" data-i18n="cancel">Cancel</button>
+                <div class="color-picker">
+                    <div class="color-dot active" style="background:#000000" onclick="setPenColor('#000000', this)"></div>
+                    <div class="color-dot" style="background:#ef4444" onclick="setPenColor('#ef4444', this)"></div>
+                    <div class="color-dot" style="background:#3b82f6" onclick="setPenColor('#3b82f6', this)"></div>
+                    <div class="color-dot" style="background:#10b981" onclick="setPenColor('#10b981', this)"></div>
+                    <div class="color-dot" style="background:#f59e0b" onclick="setPenColor('#f59e0b', this)"></div>
+                    <div class="color-dot" style="background:#8b5cf6" onclick="setPenColor('#8b5cf6', this)"></div>
+                </div>
+                <button class="btn btn-primary" style="width:auto; padding:8px 16px" onclick="saveDraw()" data-i18n="btn_save">Save</button>
+            </div>
+            <div class="canvas-wrapper" id="canvas-wrapper">
+                <canvas id="draw-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="modal-tools">
         <div class="modal">
             <div style="display:flex; gap:8px; margin-bottom:15px; background:var(--bg-input); padding:4px; border-radius:14px">
                 <button class="btn btn-primary" id="tab-calc" onclick="switchTool('calc')" data-i18n="tab_calc" style="flex:1">Calculator</button>
                 <button class="btn btn-ghost" id="tab-conv" onclick="switchTool('conv')" data-i18n="tab_conv" style="flex:1">Converter</button>
             </div>
+            
             <div id="view-calc">
                 <div class="calc-container">
                     <div class="calc-screen">
@@ -342,6 +381,7 @@
                     </div>
                 </div>
             </div>
+
             <div id="view-conv" style="display:none;">
                 <select id="cv-type" onchange="initConv()" style="font-weight:700; background:var(--bg-surface); margin-bottom:20px">
                     <option value="len">📏 Length</option>
@@ -365,6 +405,7 @@
                     </div>
                 </div>
             </div>
+            
             <button class="btn btn-ghost" style="margin-top:15px" onclick="closeModal('modal-tools')" data-i18n="close">Close</button>
         </div>
     </div>
@@ -382,26 +423,8 @@
         </div>
     </div>
 
-    <div class="draw-overlay" id="draw-overlay">
-        <div class="draw-panel">
-            <div class="draw-toolbar">
-                <button class="btn btn-ghost" style="width:auto; color:var(--text-main)" onclick="closeDraw()" data-i18n="cancel">Cancel</button>
-                <div class="color-picker">
-                    <div class="color-dot active" style="background:#000000" onclick="setPenColor('#000000', this)"></div>
-                    <div class="color-dot" style="background:#ef4444" onclick="setPenColor('#ef4444', this)"></div>
-                    <div class="color-dot" style="background:#3b82f6" onclick="setPenColor('#3b82f6', this)"></div>
-                    <div class="color-dot" style="background:#10b981" onclick="setPenColor('#10b981', this)"></div>
-                    <div class="color-dot" style="background:#f59e0b" onclick="setPenColor('#f59e0b', this)"></div>
-                    <div class="color-dot" style="background:#8b5cf6" onclick="setPenColor('#8b5cf6', this)"></div>
-                </div>
-                <button class="btn btn-primary" style="width:auto; padding:8px 16px" onclick="saveDraw()" data-i18n="btn_save">Save</button>
-            </div>
-            <canvas id="draw-canvas"></canvas>
-        </div>
-    </div>
-
     <script>
-        // --- STATE MANAGEMENT ---
+        // --- STATE ---
         let items = JSON.parse(localStorage.getItem('smartops_data')) || [];
         let mode = 'task';
         let imgBuffer = null;
@@ -410,7 +433,7 @@
         let currentCalDate = new Date();
         let penColor = '#000000';
 
-        // --- I18N DICTIONARY ---
+        // --- I18N ---
         const i18n = {
             en: {
                 nav_tasks: "Tasks", nav_orders: "Orders", nav_targets: "Targets", nav_tools: "Tools", nav_settings: "Settings",
@@ -428,13 +451,11 @@
             }
         };
 
-        // --- INITIALIZATION ---
         window.onload = () => {
             applyTheme();
             setLanguage(currentLang);
             setMode('task'); 
             renderCal();
-            // Try to sync with widget immediately
             updateWidgetDB(items);
         };
 
@@ -443,10 +464,7 @@
         function applyTheme() { 
             document.body.className = isDark ? '' : 'light-mode'; 
             localStorage.setItem('smartops_theme', isDark ? 'dark' : 'light'); 
-            
-            // Update Canvas color if open? Better to just let user reset
-            const dots = document.querySelectorAll('.color-dot');
-            if(dots.length > 0) dots[0].style.background = isDark ? '#ffffff' : '#000000';
+            // Update default pen color if black/white
             if(penColor === '#000000' || penColor === '#ffffff') penColor = isDark ? '#ffffff' : '#000000';
         }
 
@@ -461,7 +479,7 @@
             updateTitle();
         }
 
-        // --- CORE NAVIGATION & CRUD ---
+        // --- CRUD & NAVIGATION ---
         function setMode(m) {
             mode = m;
             document.querySelectorAll('.mob-item, .nav-item').forEach(el => {
@@ -567,7 +585,7 @@
             }
         }
 
-        // --- WIDGET SYNC LOGIC ---
+        // --- WIDGET SYNC ---
         function updateWidgetDB(data) {
             if (!('indexedDB' in window)) return;
             const request = indexedDB.open('SmartOpsDB', 1);
@@ -585,7 +603,6 @@
                 const store = tx.objectStore('items');
                 store.clear();
                 data.forEach(item => {
-                    // Only sync needed fields for widget to save space
                     store.put({
                         id: item.id,
                         title: item.title,
@@ -594,7 +611,6 @@
                         type: item.type
                     });
                 });
-                
                 if (navigator.serviceWorker && navigator.serviceWorker.controller) {
                     navigator.serviceWorker.controller.postMessage({ type: 'RELOAD_WIDGET' });
                 }
@@ -606,12 +622,13 @@
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'smartops_backup.json'; a.click();
         }
 
+        // --- UTILS ---
         function openModal() { document.getElementById('modal-entry').classList.add('show'); }
         function openToolModal() { document.getElementById('modal-tools').classList.add('show'); switchTool('calc'); }
         function openSettingsModal() { document.getElementById('modal-settings').classList.add('show'); }
         function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-        // --- CALCULATOR & CONVERTER (Standard) ---
+        // --- CALCULATOR ---
         let cExp = "", cPrev = "";
         const convUnits = { len: { m:1, km:1000, cm:0.01, mm:0.001, ft:0.3048, in:0.0254, mi:1609.34 }, wgt: { kg:1, g:0.001, lb:0.453592, oz:0.0283495 }, vol: { l:1, ml:0.001, gal:3.78541, qt:0.946353 }, temp: { c:'c', f:'f', k:'k' } };
         function switchTool(t) { document.getElementById('view-calc').style.display=t==='calc'?'block':'none'; document.getElementById('view-conv').style.display=t==='conv'?'block':'none'; document.getElementById('tab-calc').className=t==='calc'?'btn btn-primary':'btn btn-ghost'; document.getElementById('tab-conv').className=t==='conv'?'btn btn-primary':'btn btn-ghost'; if(t==='conv') initConv(); }
@@ -620,13 +637,75 @@
         function cClear() { cExp="0"; cPrev=""; updateC(); }
         function cCalc() { try { cPrev=cExp+" ="; let f=cExp.replace(/×/g, '*').replace(/÷/g, '/').replace(/(\d+)%/g, '($1/100)'); let r=eval(f); cExp=Number.isInteger(r)?r.toString():parseFloat(r.toFixed(6)).toString(); } catch { cExp="Error"; } updateC(); }
         function updateC() { document.getElementById('c-disp').innerText=cExp||"0"; document.getElementById('c-history').innerText=cPrev; }
+        
+        // --- CONVERTER ---
         function initConv() { const t=document.getElementById('cv-type').value, u1=document.getElementById('cv-u1'), u2=document.getElementById('cv-u2'); u1.innerHTML=''; u2.innerHTML=''; Object.keys(convUnits[t]).forEach(k => { u1.innerHTML+=`<option value="${k}">${k.toUpperCase()}</option>`; u2.innerHTML+=`<option value="${k}">${k.toUpperCase()}</option>`; }); u2.selectedIndex=1; doConv(); }
         function doConv() { const t=document.getElementById('cv-type').value, v=parseFloat(document.getElementById('cv-in').value)||0, f=document.getElementById('cv-u1').value, to=document.getElementById('cv-u2').value; let r=0; if(t==='temp') { let c=v; if(f==='f') c=(v-32)*5/9; if(f==='k') c=v-273.15; if(to==='c') r=c; if(to==='f') r=(c*9/5)+32; if(to==='k') r=c+273.15; } else { r=(v*convUnits[t][f])/convUnits[t][to]; } document.getElementById('cv-out').innerText=parseFloat(r.toFixed(4)); }
         function swapConv() { const u1=document.getElementById('cv-u1'), u2=document.getElementById('cv-u2'), tmp=u1.value; u1.value=u2.value; u2.value=tmp; doConv(); }
+        
+        // --- CALENDAR ---
         function changeMonth(d) { currentCalDate.setMonth(currentCalDate.getMonth()+d); renderCal(); }
         function renderCal() { document.getElementById('cal-month').innerText=currentCalDate.toLocaleString(currentLang==='en'?'en-US':'ms-MY', {month:'long', year:'numeric'}); const g=document.getElementById('cal-days'); g.innerHTML=''; const f=new Date(currentCalDate.getFullYear(), currentCalDate.getMonth(), 1).getDay(); const d=new Date(currentCalDate.getFullYear(), currentCalDate.getMonth()+1, 0).getDate(); const n=new Date(); for(let i=0; i<f; i++) g.innerHTML+='<div></div>'; for(let i=1; i<=d; i++) { const t=i===n.getDate() && currentCalDate.getMonth()===n.getMonth() && currentCalDate.getFullYear()===n.getFullYear(); g.innerHTML+=`<div class="cal-day ${t?'active':''}">${i}</div>`; } }
 
-        // --- DRAWING & PHOTOS (FIXED) ---
+        // --- DRAWING LOGIC (FIXED) ---
+        let canvas, ctx, drawing = false;
+
+        function openDraw() {
+            document.getElementById('draw-overlay').classList.add('show');
+            // Timeout ensures modal is visible before we measure size
+            setTimeout(() => {
+                canvas = document.getElementById('draw-canvas');
+                const wrapper = document.getElementById('canvas-wrapper');
+                
+                // Match resolution to display size
+                canvas.width = wrapper.clientWidth;
+                canvas.height = wrapper.clientHeight;
+                
+                ctx = canvas.getContext('2d');
+                ctx.fillStyle = "#ffffff"; 
+                ctx.fillRect(0, 0, canvas.width, canvas.height); 
+                
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = penColor;
+                
+                setupDrawEvents();
+            }, 50);
+        }
+
+        function setupDrawEvents() {
+            const getPos = (e) => {
+                const r = canvas.getBoundingClientRect();
+                const cx = e.touches ? e.touches[0].clientX : e.clientX;
+                const cy = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: cx - r.left, y: cy - r.top };
+            };
+            const start = (e) => { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); };
+            const move = (e) => { if(!drawing) return; e.preventDefault(); const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+            const end = () => { drawing = false; };
+            
+            canvas.onmousedown = start; canvas.onmousemove = move; window.onmouseup = end;
+            canvas.ontouchstart = start; canvas.ontouchmove = move; window.ontouchend = end;
+        }
+
+        function setPenColor(color, el) {
+            penColor = color;
+            if(ctx) ctx.strokeStyle = color;
+            document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+            if(el) el.classList.add('active');
+        }
+
+        function closeDraw() { document.getElementById('draw-overlay').classList.remove('show'); }
+        
+        function saveDraw() {
+            if(!canvas) return;
+            // Compress to JPEG 60%
+            imgBuffer = canvas.toDataURL('image/jpeg', 0.6);
+            document.getElementById('img-status').innerText = "Sketch Attached"; 
+            closeDraw(); 
+        }
+
         function processImage(input) {
             if (input.files?.[0]) {
                 const reader = new FileReader();
@@ -636,66 +715,18 @@
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
-                        const MAX_SIZE = 800;
-                        let width = img.width, height = img.height;
-                        if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } }
-                        else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
-                        canvas.width = width; canvas.height = height;
-                        ctx.drawImage(img, 0, 0, width, height);
+                        const MAX = 800;
+                        let w = img.width, h = img.height;
+                        if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } }
+                        else { if (h > MAX) { w *= MAX / h; h = MAX; } }
+                        canvas.width = w; canvas.height = h;
+                        ctx.drawImage(img, 0, 0, w, h);
                         imgBuffer = canvas.toDataURL('image/jpeg', 0.6); 
                         document.getElementById('img-status').innerText = "Photo Attached (Compressed)";
                     };
                 };
                 reader.readAsDataURL(input.files[0]);
             }
-        }
-        
-        let canvas, ctx, drawing = false;
-        function openDraw() {
-            document.getElementById('draw-overlay').classList.add('show');
-            canvas = document.getElementById('draw-canvas'); 
-            ctx = canvas.getContext('2d');
-            
-            // Resize canvas to fit visible area correctly
-            const parent = canvas.parentElement;
-            const toolbarHeight = 60; // Approximate
-            canvas.width = parent.clientWidth;
-            canvas.height = parent.clientHeight - toolbarHeight;
-            
-            ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height); 
-            ctx.lineCap = 'round';
-            ctx.lineWidth = 4;
-            setPenColor(penColor); // Restore last used color
-            
-            const getPos = (e) => {
-                const r = canvas.getBoundingClientRect();
-                const cx = e.touches ? e.touches[0].clientX : e.clientX;
-                const cy = e.touches ? e.touches[0].clientY : e.clientY;
-                return { x: cx - r.left, y: cy - r.top };
-            };
-            const start = (e) => { drawing=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x, p.y); };
-            const move = (e) => { if(drawing) { e.preventDefault(); const p=getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); } };
-            const end = () => drawing=false;
-            canvas.onmousedown = start; canvas.onmousemove = move; window.onmouseup = end;
-            canvas.ontouchstart = start; canvas.ontouchmove = move; window.ontouchend = end;
-        }
-
-        function setPenColor(color, el) {
-            penColor = color;
-            if(ctx) ctx.strokeStyle = color;
-            if(el) {
-                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-                el.classList.add('active');
-            }
-        }
-
-        function closeDraw() { document.getElementById('draw-overlay').classList.remove('show'); }
-        
-        function saveDraw() {
-            // FIX: Compress to JPEG 0.6 to avoid LocalStorage Quota Exceeded error
-            imgBuffer = canvas.toDataURL('image/jpeg', 0.6); 
-            document.getElementById('img-status').innerText = "Sketch Attached"; 
-            closeDraw(); 
         }
 
         // --- PWA INSTALL ---
