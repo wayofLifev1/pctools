@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0f172a">
     <meta name="description" content="SmartOps Pro - Enterprise Productivity System">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="SmartOps">
-    <title>SmartOps Pro v3.3 (Widget + Install Fix)</title>
+    <title>SmartOps Pro v3.4 (Colors + Widget Ready)</title>
     
     <link rel="manifest" href="./manifest.json">
     
@@ -156,14 +153,11 @@
         .modal-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 100; 
-            /* Fix for clicking through invisible overlays */
             pointer-events: none;
             display: none; align-items: center; justify-content: center; opacity: 0; transition: 0.2s;
         }
-        .modal-overlay.show { 
-            opacity: 1; display: flex; 
-            pointer-events: auto;
-        }
+        .modal-overlay.show { opacity: 1; display: flex; pointer-events: auto; }
+        
         .modal {
             background: var(--bg-surface); width: 95%; max-width: 480px;
             border-radius: 24px; padding: 24px; border: 1px solid var(--border);
@@ -175,60 +169,34 @@
             padding: 14px; border-radius: 12px; color: var(--text-main); margin-bottom: 12px; font-family: inherit; font-size: 1rem;
         }
         
-        /* Dark mode date picker fix */
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1); opacity: 0.5; cursor: pointer;
-        }
-        body.light-mode input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(0);
-        }
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.5; cursor: pointer; }
+        body.light-mode input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0); }
 
         .btn { width: 100%; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; display:flex; justify-content:center; align-items:center; gap:8px; transition: 0.2s; font-size: 1rem; }
         .btn-primary { background: var(--primary-grad); color: white; }
         .btn-ghost { background: transparent; color: var(--text-muted); }
         .btn-ghost:hover { background: var(--bg-surface-2); color: var(--text-main); }
 
-        /* --- TOOLS UI --- */
-        .calc-container { background: var(--bg-input); border-radius: 20px; padding: 16px; border: 1px solid var(--border); }
-        .calc-screen { text-align: right; min-height: 80px; display: flex; flex-direction: column; justify-content: flex-end; padding: 10px; margin-bottom: 10px; }
-        #c-history { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px; min-height: 1rem; }
-        #c-disp { font-size: 2rem; font-weight: 700; word-break: break-all; }
-        
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .calc-btn { 
-            aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--border); 
-            background: var(--bg-surface); color: var(--text-main); font-weight: 600; 
-            cursor: pointer; font-size: 1.2rem; transition: 0.1s;
-        }
-        .calc-btn:active { transform: scale(0.95); }
-        .calc-btn.op { background: rgba(99, 102, 241, 0.1); color: var(--primary); border-color: transparent; }
-        .calc-btn.eq { background: var(--primary-grad); color: white; border: none; }
-        .calc-btn.fn { background: var(--bg-surface-2); color: var(--text-muted); font-size: 1rem; }
-
-        /* Converter UI */
-        .conv-card { background: var(--bg-input); border: 1px solid var(--border); padding: 16px; border-radius: 16px; margin-bottom: 12px; }
-        .conv-row { display: flex; align-items: center; gap: 12px; }
-        .conv-input { margin-bottom: 0 !important; font-size: 1.25rem !important; font-weight: 700 !important; border: none !important; background: transparent !important; padding: 0 !important; }
-        .conv-select { width: 110px !important; margin-bottom: 0 !important; padding: 8px !important; background: var(--bg-surface) !important; font-size: 0.85rem !important; font-weight: 600; }
-        .conv-swap {
-            width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white;
-            display: flex; align-items: center; justify-content: center; margin: -20px auto 10px auto;
-            position: relative; z-index: 2; cursor: pointer; border: 4px solid var(--bg-surface);
-        }
-
-        /* Drawing */
+        /* --- DRAWING UI IMPROVEMENTS --- */
         .draw-overlay { 
-            position: fixed; inset: 0; 
-            /* Fix for clicking through invisible overlays */
-            pointer-events: none;
-            display: none; align-items: center; justify-content: center; z-index: 200; background: rgba(0,0,0,0.9); 
+            position: fixed; inset: 0; pointer-events: none;
+            display: none; align-items: center; justify-content: center; z-index: 200; background: rgba(0,0,0,0.95); 
         }
-        .draw-overlay.show { 
-            display: flex; 
-            pointer-events: auto;
+        .draw-overlay.show { display: flex; pointer-events: auto; }
+        .draw-panel { width: 95%; height: 90vh; background: #fff; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border); }
+        
+        .draw-toolbar {
+            padding: 10px; background: var(--bg-surface); border-bottom: 1px solid var(--border);
+            display: flex; gap: 10px; justify-content: space-between; align-items: center;
         }
-        .draw-panel { width: 95%; height: 85vh; background: #fff; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border); }
-        .draw-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface); border-bottom: 1px solid var(--border); color: var(--text-main); }
+        .color-picker { display: flex; gap: 8px; overflow-x: auto; padding: 4px; }
+        .color-dot {
+            width: 32px; height: 32px; border-radius: 50%; border: 3px solid transparent; cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s;
+        }
+        .color-dot:active { transform: scale(0.9); }
+        .color-dot.active { border-color: var(--text-main); transform: scale(1.1); }
+        
         canvas#draw-canvas { flex: 1; background: #fff; touch-action: none; cursor: crosshair; }
 
         @media (max-width: 950px) {
@@ -237,6 +205,23 @@
             .dashboard-grid { grid-template-columns: 1fr; }
             .fab { bottom: calc(80px + var(--safe-bottom)); right: 20px; }
         }
+        
+        /* Tool styles omitted for brevity, same as original */
+        .calc-container { background: var(--bg-input); border-radius: 20px; padding: 16px; border: 1px solid var(--border); }
+        .calc-screen { text-align: right; min-height: 80px; display: flex; flex-direction: column; justify-content: flex-end; padding: 10px; margin-bottom: 10px; }
+        #c-history { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px; min-height: 1rem; }
+        #c-disp { font-size: 2rem; font-weight: 700; word-break: break-all; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .calc-btn { aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); font-weight: 600; cursor: pointer; font-size: 1.2rem; transition: 0.1s; }
+        .calc-btn.op { background: rgba(99, 102, 241, 0.1); color: var(--primary); border-color: transparent; }
+        .calc-btn.eq { background: var(--primary-grad); color: white; border: none; }
+        .calc-btn.fn { background: var(--bg-surface-2); color: var(--text-muted); font-size: 1rem; }
+        .conv-card { background: var(--bg-input); border: 1px solid var(--border); padding: 16px; border-radius: 16px; margin-bottom: 12px; }
+        .conv-row { display: flex; align-items: center; gap: 12px; }
+        .conv-input { margin-bottom: 0 !important; font-size: 1.25rem !important; font-weight: 700 !important; border: none !important; background: transparent !important; padding: 0 !important; }
+        .conv-select { width: 110px !important; margin-bottom: 0 !important; padding: 8px !important; background: var(--bg-surface) !important; font-size: 0.85rem !important; font-weight: 600; }
+        .conv-swap { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; margin: -20px auto 10px auto; position: relative; z-index: 2; cursor: pointer; border: 4px solid var(--bg-surface); }
+
     </style>
 </head>
 <body>
@@ -328,7 +313,6 @@
                 <button class="btn btn-primary" id="tab-calc" onclick="switchTool('calc')" data-i18n="tab_calc" style="flex:1">Calculator</button>
                 <button class="btn btn-ghost" id="tab-conv" onclick="switchTool('conv')" data-i18n="tab_conv" style="flex:1">Converter</button>
             </div>
-            
             <div id="view-calc">
                 <div class="calc-container">
                     <div class="calc-screen">
@@ -340,29 +324,24 @@
                         <button class="calc-btn fn" onclick="cDel()"><i class="ph ph-backspace"></i></button>
                         <button class="calc-btn fn" onclick="cAdd('%')">%</button>
                         <button class="calc-btn op" onclick="cAdd('/')">÷</button>
-
                         <button class="calc-btn" onclick="cAdd('7')">7</button>
                         <button class="calc-btn" onclick="cAdd('8')">8</button>
                         <button class="calc-btn" onclick="cAdd('9')">9</button>
                         <button class="calc-btn op" onclick="cAdd('*')">×</button>
-
                         <button class="calc-btn" onclick="cAdd('4')">4</button>
                         <button class="calc-btn" onclick="cAdd('5')">5</button>
                         <button class="calc-btn" onclick="cAdd('6')">6</button>
                         <button class="calc-btn op" onclick="cAdd('-')">−</button>
-
                         <button class="calc-btn" onclick="cAdd('1')">1</button>
                         <button class="calc-btn" onclick="cAdd('2')">2</button>
                         <button class="calc-btn" onclick="cAdd('3')">3</button>
                         <button class="calc-btn op" onclick="cAdd('+')">+</button>
-
                         <button class="calc-btn" onclick="cAdd('0')" style="grid-column: span 2; aspect-ratio:auto">0</button>
                         <button class="calc-btn" onclick="cAdd('.')">.</button>
                         <button class="calc-btn eq" onclick="cCalc()">=</button>
                     </div>
                 </div>
             </div>
-
             <div id="view-conv" style="display:none;">
                 <select id="cv-type" onchange="initConv()" style="font-weight:700; background:var(--bg-surface); margin-bottom:20px">
                     <option value="len">📏 Length</option>
@@ -370,7 +349,6 @@
                     <option value="vol">🧪 Volume</option>
                     <option value="temp">🌡️ Temperature</option>
                 </select>
-
                 <div class="conv-card">
                     <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase">From</label>
                     <div class="conv-row">
@@ -378,11 +356,7 @@
                         <select id="cv-u1" class="conv-select" onchange="doConv()"></select>
                     </div>
                 </div>
-
-                <div class="conv-swap" onclick="swapConv()">
-                    <i class="ph-bold ph-arrows-down-up"></i>
-                </div>
-
+                <div class="conv-swap" onclick="swapConv()"><i class="ph-bold ph-arrows-down-up"></i></div>
                 <div class="conv-card" style="border-color: var(--primary)">
                     <label style="font-size:0.8rem; font-weight:700; color:var(--primary); text-transform:uppercase">To</label>
                     <div class="conv-row">
@@ -391,7 +365,6 @@
                     </div>
                 </div>
             </div>
-            
             <button class="btn btn-ghost" style="margin-top:15px" onclick="closeModal('modal-tools')" data-i18n="close">Close</button>
         </div>
     </div>
@@ -402,7 +375,6 @@
             <button id="btn-install" class="btn btn-primary" style="display:none; margin-bottom:12px; background:var(--success)">
                 <i class="ph ph-download-simple"></i> Install App
             </button>
-
             <button class="btn btn-ghost" onclick="toggleTheme()"><i class="ph ph-moon"></i> <span data-i18n="toggle_theme">Toggle Theme</span></button>
             <button class="btn btn-ghost" onclick="toggleLanguage()"><i class="ph ph-translate"></i> <span id="lang-label">English / Malay</span></button>
             <button class="btn btn-ghost" onclick="backupData()"><i class="ph ph-download"></i> <span data-i18n="backup">Backup Data</span></button>
@@ -412,10 +384,17 @@
 
     <div class="draw-overlay" id="draw-overlay">
         <div class="draw-panel">
-            <div class="draw-header">
+            <div class="draw-toolbar">
                 <button class="btn btn-ghost" style="width:auto; color:var(--text-main)" onclick="closeDraw()" data-i18n="cancel">Cancel</button>
-                <b data-i18n="sketch">Sketch</b>
-                <button class="btn btn-primary" style="width:auto" onclick="saveDraw()" data-i18n="btn_save">Save</button>
+                <div class="color-picker">
+                    <div class="color-dot active" style="background:#000000" onclick="setPenColor('#000000', this)"></div>
+                    <div class="color-dot" style="background:#ef4444" onclick="setPenColor('#ef4444', this)"></div>
+                    <div class="color-dot" style="background:#3b82f6" onclick="setPenColor('#3b82f6', this)"></div>
+                    <div class="color-dot" style="background:#10b981" onclick="setPenColor('#10b981', this)"></div>
+                    <div class="color-dot" style="background:#f59e0b" onclick="setPenColor('#f59e0b', this)"></div>
+                    <div class="color-dot" style="background:#8b5cf6" onclick="setPenColor('#8b5cf6', this)"></div>
+                </div>
+                <button class="btn btn-primary" style="width:auto; padding:8px 16px" onclick="saveDraw()" data-i18n="btn_save">Save</button>
             </div>
             <canvas id="draw-canvas"></canvas>
         </div>
@@ -429,6 +408,7 @@
         let isDark = localStorage.getItem('smartops_theme') !== 'light';
         let currentLang = localStorage.getItem('smartops_lang') || 'en';
         let currentCalDate = new Date();
+        let penColor = '#000000';
 
         // --- I18N DICTIONARY ---
         const i18n = {
@@ -454,7 +434,8 @@
             setLanguage(currentLang);
             setMode('task'); 
             renderCal();
-            updateWidgetDB(items); // Sync data to widget on load
+            // Try to sync with widget immediately
+            updateWidgetDB(items);
         };
 
         // --- THEME & LANG ---
@@ -462,6 +443,11 @@
         function applyTheme() { 
             document.body.className = isDark ? '' : 'light-mode'; 
             localStorage.setItem('smartops_theme', isDark ? 'dark' : 'light'); 
+            
+            // Update Canvas color if open? Better to just let user reset
+            const dots = document.querySelectorAll('.color-dot');
+            if(dots.length > 0) dots[0].style.background = isDark ? '#ffffff' : '#000000';
+            if(penColor === '#000000' || penColor === '#ffffff') penColor = isDark ? '#ffffff' : '#000000';
         }
 
         function toggleLanguage() { setLanguage(currentLang === 'en' ? 'ms' : 'en'); }
@@ -482,12 +468,9 @@
                 el.classList.remove('active');
                 if(el.getAttribute('onclick')?.includes(`'${m}'`)) el.classList.add('active');
             });
-
-            // Toggle input fields based on mode
             ['grp-order', 'grp-target'].forEach(id => document.getElementById(id).style.display = 'none');
             if(m === 'order') document.getElementById('grp-order').style.display = 'block';
             if(m === 'target') document.getElementById('grp-target').style.display = 'block';
-
             updateTitle();
             render();
         }
@@ -505,7 +488,6 @@
             const search = document.getElementById('inp-search').value.toLowerCase();
             container.innerHTML = '';
             
-            // Filter and Sort by Date (Empty dates last)
             const filteredItems = items.filter(i => i.type === mode && i.title.toLowerCase().includes(search));
             filteredItems.sort((a, b) => {
                 if(!a.date) return 1; if(!b.date) return -1;
@@ -556,7 +538,6 @@
             items.push(newItem);
             save();
             
-            // Reset fields
             document.getElementById('m-title').value = '';
             document.getElementById('m-notes').value = '';
             document.getElementById('m-date').value = '';
@@ -577,14 +558,16 @@
             }
         }
 
-        // --- SAVE + WIDGET SYNC LOGIC ---
         function save() {
-            // 1. Save to LocalStorage (For this App)
-            localStorage.setItem('smartops_data', JSON.stringify(items));
-            // 2. Save to IndexedDB (For the Widget)
-            updateWidgetDB(items);
+            try {
+                localStorage.setItem('smartops_data', JSON.stringify(items));
+                updateWidgetDB(items);
+            } catch (e) {
+                alert("Storage full! Try deleting items or old photos.");
+            }
         }
 
+        // --- WIDGET SYNC LOGIC ---
         function updateWidgetDB(data) {
             if (!('indexedDB' in window)) return;
             const request = indexedDB.open('SmartOpsDB', 1);
@@ -602,10 +585,16 @@
                 const store = tx.objectStore('items');
                 store.clear();
                 data.forEach(item => {
-                    store.put(JSON.parse(JSON.stringify(item)));
+                    // Only sync needed fields for widget to save space
+                    store.put({
+                        id: item.id,
+                        title: item.title,
+                        date: item.date,
+                        done: item.done,
+                        type: item.type
+                    });
                 });
                 
-                // Notify Service Worker
                 if (navigator.serviceWorker && navigator.serviceWorker.controller) {
                     navigator.serviceWorker.controller.postMessage({ type: 'RELOAD_WIDGET' });
                 }
@@ -617,102 +606,29 @@
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'smartops_backup.json'; a.click();
         }
 
-        // --- UI UTILITIES ---
         function openModal() { document.getElementById('modal-entry').classList.add('show'); }
         function openToolModal() { document.getElementById('modal-tools').classList.add('show'); switchTool('calc'); }
         function openSettingsModal() { document.getElementById('modal-settings').classList.add('show'); }
         function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-        // --- CALCULATOR LOGIC ---
+        // --- CALCULATOR & CONVERTER (Standard) ---
         let cExp = "", cPrev = "";
-        function switchTool(t) {
-            document.getElementById('view-calc').style.display = t === 'calc' ? 'block' : 'none';
-            document.getElementById('view-conv').style.display = t === 'conv' ? 'block' : 'none';
-            document.getElementById('tab-calc').className = t === 'calc' ? 'btn btn-primary' : 'btn btn-ghost';
-            document.getElementById('tab-conv').className = t === 'conv' ? 'btn btn-primary' : 'btn btn-ghost';
-            if(t === 'conv') initConv();
-        }
-        function cAdd(v) { if (cExp === "0" && !isNaN(v)) cExp = v; else cExp += v; updateC(); }
-        function cDel() { cExp = cExp.toString().slice(0, -1); if (cExp === "") cExp = "0"; updateC(); }
-        function cClear() { cExp = "0"; cPrev = ""; updateC(); }
-        function cCalc() {
-            try {
-                cPrev = cExp + " =";
-                let formula = cExp.replace(/×/g, '*').replace(/÷/g, '/').replace(/(\d+)%/g, '($1/100)');
-                let res = eval(formula);
-                cExp = Number.isInteger(res) ? res.toString() : parseFloat(res.toFixed(6)).toString();
-            } catch { cExp = "Error"; }
-            updateC();
-        }
-        function updateC() { document.getElementById('c-disp').innerText = cExp || "0"; document.getElementById('c-history').innerText = cPrev; }
+        const convUnits = { len: { m:1, km:1000, cm:0.01, mm:0.001, ft:0.3048, in:0.0254, mi:1609.34 }, wgt: { kg:1, g:0.001, lb:0.453592, oz:0.0283495 }, vol: { l:1, ml:0.001, gal:3.78541, qt:0.946353 }, temp: { c:'c', f:'f', k:'k' } };
+        function switchTool(t) { document.getElementById('view-calc').style.display=t==='calc'?'block':'none'; document.getElementById('view-conv').style.display=t==='conv'?'block':'none'; document.getElementById('tab-calc').className=t==='calc'?'btn btn-primary':'btn btn-ghost'; document.getElementById('tab-conv').className=t==='conv'?'btn btn-primary':'btn btn-ghost'; if(t==='conv') initConv(); }
+        function cAdd(v) { if(cExp==="0" && !isNaN(v)) cExp=v; else cExp+=v; updateC(); }
+        function cDel() { cExp=cExp.toString().slice(0,-1); if(cExp==="") cExp="0"; updateC(); }
+        function cClear() { cExp="0"; cPrev=""; updateC(); }
+        function cCalc() { try { cPrev=cExp+" ="; let f=cExp.replace(/×/g, '*').replace(/÷/g, '/').replace(/(\d+)%/g, '($1/100)'); let r=eval(f); cExp=Number.isInteger(r)?r.toString():parseFloat(r.toFixed(6)).toString(); } catch { cExp="Error"; } updateC(); }
+        function updateC() { document.getElementById('c-disp').innerText=cExp||"0"; document.getElementById('c-history').innerText=cPrev; }
+        function initConv() { const t=document.getElementById('cv-type').value, u1=document.getElementById('cv-u1'), u2=document.getElementById('cv-u2'); u1.innerHTML=''; u2.innerHTML=''; Object.keys(convUnits[t]).forEach(k => { u1.innerHTML+=`<option value="${k}">${k.toUpperCase()}</option>`; u2.innerHTML+=`<option value="${k}">${k.toUpperCase()}</option>`; }); u2.selectedIndex=1; doConv(); }
+        function doConv() { const t=document.getElementById('cv-type').value, v=parseFloat(document.getElementById('cv-in').value)||0, f=document.getElementById('cv-u1').value, to=document.getElementById('cv-u2').value; let r=0; if(t==='temp') { let c=v; if(f==='f') c=(v-32)*5/9; if(f==='k') c=v-273.15; if(to==='c') r=c; if(to==='f') r=(c*9/5)+32; if(to==='k') r=c+273.15; } else { r=(v*convUnits[t][f])/convUnits[t][to]; } document.getElementById('cv-out').innerText=parseFloat(r.toFixed(4)); }
+        function swapConv() { const u1=document.getElementById('cv-u1'), u2=document.getElementById('cv-u2'), tmp=u1.value; u1.value=u2.value; u2.value=tmp; doConv(); }
+        function changeMonth(d) { currentCalDate.setMonth(currentCalDate.getMonth()+d); renderCal(); }
+        function renderCal() { document.getElementById('cal-month').innerText=currentCalDate.toLocaleString(currentLang==='en'?'en-US':'ms-MY', {month:'long', year:'numeric'}); const g=document.getElementById('cal-days'); g.innerHTML=''; const f=new Date(currentCalDate.getFullYear(), currentCalDate.getMonth(), 1).getDay(); const d=new Date(currentCalDate.getFullYear(), currentCalDate.getMonth()+1, 0).getDate(); const n=new Date(); for(let i=0; i<f; i++) g.innerHTML+='<div></div>'; for(let i=1; i<=d; i++) { const t=i===n.getDate() && currentCalDate.getMonth()===n.getMonth() && currentCalDate.getFullYear()===n.getFullYear(); g.innerHTML+=`<div class="cal-day ${t?'active':''}">${i}</div>`; } }
 
-        // --- CONVERTER LOGIC ---
-        const convUnits = {
-            len: { m:1, km:1000, cm:0.01, mm:0.001, ft:0.3048, in:0.0254, mi:1609.34 },
-            wgt: { kg:1, g:0.001, lb:0.453592, oz:0.0283495 },
-            vol: { l:1, ml:0.001, gal:3.78541, qt:0.946353 },
-            temp: { c:'c', f:'f', k:'k' }
-        };
-
-        function initConv() {
-            const type = document.getElementById('cv-type').value;
-            const u1 = document.getElementById('cv-u1'), u2 = document.getElementById('cv-u2');
-            u1.innerHTML = ''; u2.innerHTML = '';
-            Object.keys(convUnits[type]).forEach(k => {
-                u1.innerHTML += `<option value="${k}">${k.toUpperCase()}</option>`;
-                u2.innerHTML += `<option value="${k}">${k.toUpperCase()}</option>`;
-            });
-            u2.selectedIndex = 1;
-            doConv();
-        }
-
-        function doConv() {
-            const type = document.getElementById('cv-type').value;
-            const val = parseFloat(document.getElementById('cv-in').value) || 0;
-            const from = document.getElementById('cv-u1').value;
-            const to = document.getElementById('cv-u2').value;
-            let res = 0;
-
-            if(type === 'temp') {
-                let c = val; // normalize to C
-                if(from === 'f') c = (val - 32) * 5/9;
-                if(from === 'k') c = val - 273.15;
-                // convert from C
-                if(to === 'c') res = c;
-                if(to === 'f') res = (c * 9/5) + 32;
-                if(to === 'k') res = c + 273.15;
-            } else {
-                res = (val * convUnits[type][from]) / convUnits[type][to];
-            }
-            document.getElementById('cv-out').innerText = parseFloat(res.toFixed(4));
-        }
-
-        function swapConv() {
-            const u1 = document.getElementById('cv-u1'), u2 = document.getElementById('cv-u2');
-            const tmp = u1.value; u1.value = u2.value; u2.value = tmp;
-            doConv();
-        }
-
-        // --- CALENDAR LOGIC ---
-        function changeMonth(dir) { currentCalDate.setMonth(currentCalDate.getMonth() + dir); renderCal(); }
-        function renderCal() {
-            document.getElementById('cal-month').innerText = currentCalDate.toLocaleString(currentLang === 'en' ? 'en-US' : 'ms-MY', {month:'long', year:'numeric'});
-            const grid = document.getElementById('cal-days'); grid.innerHTML = '';
-            const firstDay = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth(), 1).getDay();
-            const daysInMonth = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth()+1, 0).getDate();
-            const now = new Date();
-            
-            for(let i=0; i<firstDay; i++) grid.innerHTML += `<div></div>`;
-            for(let i=1; i<=daysInMonth; i++) {
-                const isToday = i === now.getDate() && currentCalDate.getMonth() === now.getMonth() && currentCalDate.getFullYear() === now.getFullYear();
-                grid.innerHTML += `<div class="cal-day ${isToday ? 'active' : ''}">${i}</div>`;
-            }
-        }
-
-        // --- DRAWING & PHOTOS (COMPRESSED) ---
+        // --- DRAWING & PHOTOS (FIXED) ---
         function processImage(input) {
             if (input.files?.[0]) {
-                const file = input.files[0];
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const img = new Image();
@@ -726,11 +642,11 @@
                         else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
                         canvas.width = width; canvas.height = height;
                         ctx.drawImage(img, 0, 0, width, height);
-                        imgBuffer = canvas.toDataURL('image/jpeg', 0.7); 
+                        imgBuffer = canvas.toDataURL('image/jpeg', 0.6); 
                         document.getElementById('img-status').innerText = "Photo Attached (Compressed)";
                     };
                 };
-                reader.readAsDataURL(file);
+                reader.readAsDataURL(input.files[0]);
             }
         }
         
@@ -739,10 +655,18 @@
             document.getElementById('draw-overlay').classList.add('show');
             canvas = document.getElementById('draw-canvas'); 
             ctx = canvas.getContext('2d');
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = rect.width; canvas.height = rect.height - 60; 
+            
+            // Resize canvas to fit visible area correctly
+            const parent = canvas.parentElement;
+            const toolbarHeight = 60; // Approximate
+            canvas.width = parent.clientWidth;
+            canvas.height = parent.clientHeight - toolbarHeight;
+            
             ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height); 
-            ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 4;
+            setPenColor(penColor); // Restore last used color
+            
             const getPos = (e) => {
                 const r = canvas.getBoundingClientRect();
                 const cx = e.touches ? e.touches[0].clientX : e.clientX;
@@ -755,42 +679,37 @@
             canvas.onmousedown = start; canvas.onmousemove = move; window.onmouseup = end;
             canvas.ontouchstart = start; canvas.ontouchmove = move; window.ontouchend = end;
         }
-        function closeDraw() { document.getElementById('draw-overlay').classList.remove('show'); }
-        function saveDraw() { imgBuffer = canvas.toDataURL(); document.getElementById('img-status').innerText = "Sketch Attached"; closeDraw(); }
 
-        // --- PWA INSTALL LOGIC ---
+        function setPenColor(color, el) {
+            penColor = color;
+            if(ctx) ctx.strokeStyle = color;
+            if(el) {
+                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+                el.classList.add('active');
+            }
+        }
+
+        function closeDraw() { document.getElementById('draw-overlay').classList.remove('show'); }
+        
+        function saveDraw() {
+            // FIX: Compress to JPEG 0.6 to avoid LocalStorage Quota Exceeded error
+            imgBuffer = canvas.toDataURL('image/jpeg', 0.6); 
+            document.getElementById('img-status').innerText = "Sketch Attached"; 
+            closeDraw(); 
+        }
+
+        // --- PWA INSTALL ---
         let deferredPrompt;
         const installBtn = document.getElementById('btn-install');
-
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBtn.style.display = 'flex'; // Show the install button
+            e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'flex';
         });
-
         installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
-                installBtn.style.display = 'none';
-            }
+            if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; installBtn.style.display = 'none'; }
         });
-
-        window.addEventListener('appinstalled', () => {
-            installBtn.style.display = 'none';
-            deferredPrompt = null;
-        });
-
-    </script>
-    
-    <script>
+        
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Service Worker registered!'))
-                    .catch(err => console.log('Service Worker failed:', err));
-            });
+            window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); });
         }
     </script>
 </body>
