@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="SmartOps">
-    <title>SmartOps Pro v3.2 (Widget Ready)</title>
+    <title>SmartOps Pro v3.3 (Widget + Install Fix)</title>
     
     <link rel="manifest" href="./manifest.json">
     
@@ -156,9 +156,14 @@
         .modal-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 100; 
+            /* Fix for clicking through invisible overlays */
+            pointer-events: none;
             display: none; align-items: center; justify-content: center; opacity: 0; transition: 0.2s;
         }
-        .modal-overlay.show { opacity: 1; display: flex; }
+        .modal-overlay.show { 
+            opacity: 1; display: flex; 
+            pointer-events: auto;
+        }
         .modal {
             background: var(--bg-surface); width: 95%; max-width: 480px;
             border-radius: 24px; padding: 24px; border: 1px solid var(--border);
@@ -212,8 +217,16 @@
         }
 
         /* Drawing */
-        .draw-overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 200; background: rgba(0,0,0,0.9); }
-        .draw-overlay.show { display: flex; }
+        .draw-overlay { 
+            position: fixed; inset: 0; 
+            /* Fix for clicking through invisible overlays */
+            pointer-events: none;
+            display: none; align-items: center; justify-content: center; z-index: 200; background: rgba(0,0,0,0.9); 
+        }
+        .draw-overlay.show { 
+            display: flex; 
+            pointer-events: auto;
+        }
         .draw-panel { width: 95%; height: 85vh; background: #fff; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border); }
         .draw-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface); border-bottom: 1px solid var(--border); color: var(--text-main); }
         canvas#draw-canvas { flex: 1; background: #fff; touch-action: none; cursor: crosshair; }
@@ -386,6 +399,10 @@
     <div class="modal-overlay" id="modal-settings">
         <div class="modal">
             <h3 data-i18n="nav_settings">Settings</h3>
+            <button id="btn-install" class="btn btn-primary" style="display:none; margin-bottom:12px; background:var(--success)">
+                <i class="ph ph-download-simple"></i> Install App
+            </button>
+
             <button class="btn btn-ghost" onclick="toggleTheme()"><i class="ph ph-moon"></i> <span data-i18n="toggle_theme">Toggle Theme</span></button>
             <button class="btn btn-ghost" onclick="toggleLanguage()"><i class="ph ph-translate"></i> <span id="lang-label">English / Malay</span></button>
             <button class="btn btn-ghost" onclick="backupData()"><i class="ph ph-download"></i> <span data-i18n="backup">Backup Data</span></button>
@@ -435,7 +452,7 @@
         window.onload = () => {
             applyTheme();
             setLanguage(currentLang);
-            setMode('task'); // This triggers render()
+            setMode('task'); 
             renderCal();
             updateWidgetDB(items); // Sync data to widget on load
         };
@@ -560,12 +577,11 @@
             }
         }
 
-        // --- UPDATED SAVE FUNCTION (Fixes Widget) ---
+        // --- SAVE + WIDGET SYNC LOGIC ---
         function save() {
             // 1. Save to LocalStorage (For this App)
             localStorage.setItem('smartops_data', JSON.stringify(items));
-            
-            // 2. Save to IndexedDB (For the Widget/SW)
+            // 2. Save to IndexedDB (For the Widget)
             updateWidgetDB(items);
         }
 
@@ -741,6 +757,30 @@
         }
         function closeDraw() { document.getElementById('draw-overlay').classList.remove('show'); }
         function saveDraw() { imgBuffer = canvas.toDataURL(); document.getElementById('img-status').innerText = "Sketch Attached"; closeDraw(); }
+
+        // --- PWA INSTALL LOGIC ---
+        let deferredPrompt;
+        const installBtn = document.getElementById('btn-install');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'flex'; // Show the install button
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                installBtn.style.display = 'none';
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            installBtn.style.display = 'none';
+            deferredPrompt = null;
+        });
 
     </script>
     
