@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0f172a">
     <meta name="description" content="SmartOps Pro - Enterprise Productivity System">
-    <title>SmartOps Pro v3.5 (Final Fix)</title>
+    <title>SmartOps Pro v3.6 (Detail View)</title>
     
     <link rel="manifest" href="./manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -176,6 +176,46 @@
         .btn-ghost { background: transparent; color: var(--text-muted); }
         .btn-ghost:hover { background: var(--bg-surface-2); color: var(--text-main); }
 
+        /* --- MODERN CHECKBOX & DETAIL VIEW --- */
+        .detail-img {
+            width: 100%; border-radius: 16px; margin: 15px 0; 
+            border: 1px solid var(--border);
+            display: none;
+        }
+        .detail-img.has-img { display: block; }
+        
+        /* Modern Checkbox Container */
+        .modern-checkbox-container {
+            display: flex; align-items: center; gap: 15px;
+            padding: 16px; border-radius: 16px; border: 2px solid var(--border);
+            margin-top: 20px; cursor: pointer; transition: 0.2s;
+            background: var(--bg-input);
+        }
+        
+        /* The Checkbox Logic */
+        .modern-checkbox-container.checked {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--success);
+        }
+        
+        .chk-circle {
+            width: 28px; height: 28px; border-radius: 50%;
+            border: 2px solid var(--text-muted);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; transition: 0.2s;
+        }
+        
+        .modern-checkbox-container.checked .chk-circle {
+            background: var(--success); border-color: var(--success);
+            color: white;
+        }
+        
+        .chk-icon { opacity: 0; transform: scale(0.5); transition: 0.2s; }
+        .modern-checkbox-container.checked .chk-icon { opacity: 1; transform: scale(1); }
+
+        .chk-label { flex: 1; font-weight: 600; font-size: 1rem; }
+        .chk-sub { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; }
+
         /* --- FIXED DRAWING UI --- */
         .draw-overlay { 
             position: fixed; inset: 0; 
@@ -325,6 +365,35 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modal-details">
+        <div class="modal">
+            <div style="display:flex; justify-content:space-between; align-items:start; gap:10px">
+                <h2 id="d-title" style="margin:0; line-height:1.2">Task Title</h2>
+                <button class="btn btn-ghost" style="width:auto; padding:8px" onclick="closeModal('modal-details')"><i class="ph ph-x"></i></button>
+            </div>
+            
+            <div id="d-badges" style="display:flex; gap:8px; flex-wrap:wrap; margin:10px 0;"></div>
+            
+            <p id="d-notes" style="color:var(--text-muted); line-height:1.6; margin: 10px 0 0 0; white-space: pre-wrap;"></p>
+            
+            <img id="d-img" class="detail-img">
+            
+            <div id="d-check-container" class="modern-checkbox-container" onclick="toggleDetailCheck()">
+                <div class="chk-circle">
+                    <i class="ph-bold ph-check chk-icon"></i>
+                </div>
+                <div>
+                    <div class="chk-label" id="d-check-label">Mark as Complete</div>
+                    <div class="chk-sub" id="d-check-sub">Tap to update status</div>
+                </div>
+            </div>
+
+            <button class="btn btn-ghost" style="color:var(--danger); margin-top:10px" onclick="deleteCurrentDetailItem()">
+                <i class="ph ph-trash"></i> <span data-i18n="delete">Delete</span>
+            </button>
+        </div>
+    </div>
+
     <div class="draw-overlay" id="draw-overlay">
         <div class="draw-panel">
             <div class="draw-toolbar">
@@ -432,6 +501,7 @@
         let currentLang = localStorage.getItem('smartops_lang') || 'en';
         let currentCalDate = new Date();
         let penColor = '#000000';
+        let activeDetailItem = null; // Stores the item currently open in details view
 
         // --- I18N ---
         const i18n = {
@@ -530,9 +600,9 @@
                             <div style="width:100%; display:flex; gap:6px; flex-wrap:wrap; margin-top:4px">${badge}</div>
                         </div>
                     </div>
-                    <i class="ph ph-trash" style="cursor:pointer; color:var(--danger); font-size:1.2rem; align-self:center" onclick="event.stopPropagation(); deleteItem('${item.id}')"></i>
                 `;
-                div.onclick = () => { item.done = !item.done; save(); render(); };
+                // CLICK NOW OPENS DETAILS MODAL INSTEAD OF TOGGLING DONE
+                div.onclick = () => { openDetailModal(item); };
                 container.appendChild(div);
             });
         }
@@ -568,11 +638,66 @@
             render();
         }
 
-        function deleteItem(id) {
-            if(confirm("Delete this item?")) {
-                items = items.filter(i => i.id !== id);
+        // --- NEW DETAIL MODAL LOGIC ---
+        function openDetailModal(item) {
+            activeDetailItem = item;
+            
+            // Populate Text
+            document.getElementById('d-title').innerText = item.title;
+            document.getElementById('d-notes').innerText = item.notes || "No notes.";
+            
+            // Populate Badges
+            const badgeContainer = document.getElementById('d-badges');
+            badgeContainer.innerHTML = '';
+            if(item.price) badgeContainer.innerHTML += `<div class="badge bg-price" style="font-size:0.9rem">$${item.price}</div>`;
+            if(item.goal) badgeContainer.innerHTML += `<div class="badge bg-target" style="font-size:0.9rem">Target: ${item.goal}</div>`;
+            if(item.date) badgeContainer.innerHTML += `<div class="badge bg-date" style="font-size:0.9rem"><i class="ph ph-calendar-blank"></i> ${item.date}</div>`;
+
+            // Handle Image
+            const imgEl = document.getElementById('d-img');
+            if(item.img) {
+                imgEl.src = item.img;
+                imgEl.classList.add('has-img');
+            } else {
+                imgEl.classList.remove('has-img');
+            }
+
+            // Update Checkbox UI
+            updateDetailCheckboxUI(item.done);
+
+            document.getElementById('modal-details').classList.add('show');
+        }
+
+        function toggleDetailCheck() {
+            if(!activeDetailItem) return;
+            activeDetailItem.done = !activeDetailItem.done;
+            updateDetailCheckboxUI(activeDetailItem.done);
+            save(); // Save to localstorage
+            render(); // Refresh background list
+        }
+
+        function updateDetailCheckboxUI(isDone) {
+            const container = document.getElementById('d-check-container');
+            const label = document.getElementById('d-check-label');
+            const sub = document.getElementById('d-check-sub');
+            
+            if(isDone) {
+                container.classList.add('checked');
+                label.innerText = "Completed";
+                sub.innerText = "Tap to undo";
+            } else {
+                container.classList.remove('checked');
+                label.innerText = "Mark as Complete";
+                sub.innerText = "Tap to complete task";
+            }
+        }
+
+        function deleteCurrentDetailItem() {
+            if(activeDetailItem && confirm("Delete this item?")) {
+                items = items.filter(i => i.id !== activeDetailItem.id);
                 save();
                 render();
+                closeModal('modal-details');
             }
         }
 
